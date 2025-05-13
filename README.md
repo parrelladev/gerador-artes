@@ -14,10 +14,7 @@ Este é um projeto Node.js que automatiza a geração de artes gráficas para ca
 │   ├── template1/   # Template para a primeira página do carrossel
 │   │   ├── index.html
 │   │   └── styles.css
-│   ├── template2/   # Template para a segunda página do carrossel
-│   │   ├── index.html
-│   │   └── styles.css
-│   └── template3/   # Template para a terceira página do carrossel
+│   └── template2/   # Template para a segunda página do carrossel
 │       ├── index.html
 │       └── styles.css
 ├── generate.js      # Script principal de geração
@@ -51,8 +48,8 @@ npm install
   },
   {
     "template": "template2",
-    "h1": "Título da Segunda Página",
-    "h2": "Subtítulo da Segunda Página",
+    "h2": "Título Principal",
+    "text": "Texto informativo que aparecerá na faixa inferior",
     "bg": "background2",
     "logo": "logo2"
   }
@@ -74,11 +71,22 @@ node generate.js
 
 O projeto suporta múltiplos templates, cada um representando uma página diferente do carrossel:
 
-- **template1**: Layout para a primeira página do carrossel
-- **template2**: Layout para a segunda página do carrossel
-- **template3**: Layout para a terceira página do carrossel
+### Template 1
+- Layout padrão com título e subtítulo centralizados
+- Elementos:
+  - Título principal (h1)
+  - Subtítulo (h2)
+  - Logo centralizado
+  - Imagem de fundo
 
-Cada template tem seu próprio design e layout, permitindo criar uma sequência visual coesa e atraente para o carrossel.
+### Template 2
+- Layout informativo com faixa inferior
+- Elementos:
+  - Título principal no topo (h2)
+  - Faixa inferior com texto informativo
+  - Logo posicionado no canto inferior direito
+  - Imagem de fundo
+- Ideal para conteúdo informativo e explicativo
 
 ## Gerando o data.json com GPT
 
@@ -88,21 +96,28 @@ Para gerar o arquivo data.json usando GPT, use o seguinte prompt:
 Preciso que você gere um arquivo data.json para um gerador de artes para carrosséis de posts em redes sociais. O arquivo deve conter um array de objetos, onde cada objeto representa uma página diferente do carrossel. Cada objeto deve seguir a seguinte estrutura:
 
 {
-  "template": "template1", // template1, template2, template3 - indica qual página do carrossel será gerada
-  "h1": "Título da Página", // texto do título principal
+  "template": "template1", // template1 ou template2 - indica qual página do carrossel será gerada
+  "h1": "Título da Página", // texto do título principal (apenas para template1)
   "h2": "Subtítulo da Página", // texto do subtítulo
+  "text": "Texto informativo", // texto para a faixa inferior (apenas para template2)
   "bg": "nome_do_arquivo", // nome do arquivo de background (sem extensão)
   "logo": "nome_do_logo" // nome do arquivo do logo (sem extensão)
 }
 
 Regras importantes:
-1. O campo "template" deve ser "template1", "template2" ou "template3" (representando cada página do carrossel)
-2. Os campos "bg" e "logo" devem ser nomes de arquivos que existem na pasta "input" (sem a extensão .png)
-3. Os textos em h1 e h2 devem ser relevantes para redes sociais e seguir uma sequência lógica entre as páginas
-4. Gere exatamente 5 objetos diferentes no array (uma para cada página do carrossel)
-5. Mantenha os textos em português
-6. Os textos devem ser curtos e impactantes, adequados para redes sociais
-7. Mantenha uma narrativa coesa entre as páginas do carrossel
+1. O campo "template" deve ser "template1" ou "template2"
+2. Para template1:
+   - Incluir h1 e h2
+   - Não incluir o campo text
+3. Para template2:
+   - Incluir apenas h2 e text
+   - Não incluir o campo h1
+4. Os campos "bg" e "logo" devem ser nomes de arquivos que existem na pasta "input" (sem a extensão .png)
+5. Os textos devem ser relevantes para redes sociais e seguir uma sequência lógica entre as páginas
+6. Gere exatamente 5 objetos diferentes no array (uma para cada página do carrossel)
+7. Mantenha os textos em português
+8. Os textos devem ser curtos e impactantes, adequados para redes sociais
+9. Mantenha uma narrativa coesa entre as páginas do carrossel
 
 Exemplo de uso:
 - Se você tem um arquivo "background1.png" na pasta input, use "background1" no campo "bg"
@@ -112,9 +127,11 @@ Exemplo de uso:
 ## Funcionalidades
 
 - Geração automática de artes para carrosséis de posts
-- Suporte a múltiplos templates, cada um representando uma página diferente do carrossel
+- Suporte a múltiplos templates com layouts diferentes:
+  - Template1: Layout padrão com título e subtítulo
+  - Template2: Layout informativo com faixa inferior
 - Suporte a múltiplas artes em uma única execução
-- Personalização de título, subtítulo, imagem de fundo e logo para cada página
+- Personalização de título, subtítulo, texto informativo, imagem de fundo e logo para cada página
 - Suporte a imagens locais e URLs
 - Dimensões padrão de 1080x1350 pixels
 
