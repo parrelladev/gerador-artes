@@ -1,16 +1,16 @@
 [
   {
     "template": "template1",
-    "h1": "5 dicas para bombar seu perfil",
-    "h2": "Transforme seguidores em fãs",
-    "bg": "https://pbs.twimg.com/media/GqX3etsXsAAePuj?format=jpg&name=medium",
+    "h1": "HPV: um vírus silencioso",
+    "h2": "mas que pode deixar marcas para sempre",
+    "bg": "https://blog.cdb.com.br/wp-content/uploads/sites/4/2023/10/vacina-hpv-quadrivalente-protecao-contra-cancer-e-lesoes-genitais.webp",
     "logo": "redegazeta"
   },
   {
     "template": "template2",
-    "h1": "Descubra o segredo do sucesso",
-    "h2": "Destaque-se nas redes sociais",
-    "bg": "https://pbs.twimg.com/media/GqxPvZSXcAAdUfD?format=jpg&name=large",
+    "h2": "Por que falar sobre HPV é urgente?",
+    "text": "O HPV é a IST mais comum no mundo e, muitas vezes, não apresenta sintomas. Mas ele pode causar verrugas genitais e até câncer de colo do útero, ânus e garganta. A boa notícia? Existe vacina gratuita pelo SUS para prevenir os tipos mais perigosos. Falar é se cuidar.",
+    "bg": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSXxhKUsP6X-WXs52u0M1OCZsHldfHrlA12g&s",
     "logo": "redegazeta"
   }
 ]
