@@ -78,9 +78,8 @@ async function waitForImages(page) {
           if (el && src) el.src = src;
         };
 
-        // Template 2 usa h2 + textBody
+        // Template 2 usa apenas textBody
         if (template === 'template2') {
-          setText('subtitle', h2);
           setText('textBody', text);
         } else {
           setText('title', h1);
