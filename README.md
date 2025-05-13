@@ -114,9 +114,17 @@ Cada objeto deve seguir a seguinte estrutura:
   "h1": "Título da Página", // texto do título principal (apenas para template1)
   "h2": "Subtítulo da Página", // texto do subtítulo (apenas para template1)
   "text": "Texto informativo", // texto para a faixa inferior (template2) ou coluna da esquerda (template3)
-  "bg": "URL de imagem relevante ao tema", // insira automaticamente um link para imagem gratuita relacionada ao conteúdo
+  "bg": link direto de imagem (terminando com .jpg ou .png, sem redirecionamento ou página de visualização, de fontes como Pixabay, Pexels, FreeImages)
   "logo": "nome_do_logo" // nome do arquivo do logo (sem extensão)
 }
+
+Importante:
+
+    Os links de imagem no campo "bg" devem ser diretos e funcionais (terminando com .jpg ou .png) para que possam ser usados em CSS como background-image.
+
+    Não use links de páginas de imagem ou redirecionamentos.
+
+    O conteúdo deve seguir um tema, com narrativa coesa e textos curtos, impactantes e em português.
 
 Regras importantes:
 
