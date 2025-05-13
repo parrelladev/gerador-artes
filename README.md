@@ -1,6 +1,6 @@
 # Gerador de Artes
 
-Este é um projeto Node.js que automatiza a geração de artes gráficas usando Puppeteer. O projeto permite criar artes personalizadas a partir de templates HTML, substituindo textos e imagens conforme especificado em um arquivo JSON.
+Este é um projeto Node.js que automatiza a geração de artes gráficas para carrosséis de posts em redes sociais usando Puppeteer. O projeto permite criar sequências de artes personalizadas, onde cada template representa uma página diferente do carrossel, cada uma com seu próprio layout e estilo.
 
 ## Estrutura do Projeto
 
@@ -11,10 +11,13 @@ Este é um projeto Node.js que automatiza a geração de artes gráficas usando 
 │   └── imagens/     # Pasta para armazenar imagens de fundo e logos
 ├── output/          # Pasta onde as artes geradas serão salvas
 ├── templates/
-│   ├── template1/   # Template padrão
+│   ├── template1/   # Template para a primeira página do carrossel
 │   │   ├── index.html
 │   │   └── styles.css
-│   └── template2/   # Template alternativo
+│   ├── template2/   # Template para a segunda página do carrossel
+│   │   ├── index.html
+│   │   └── styles.css
+│   └── template3/   # Template para a terceira página do carrossel
 │       ├── index.html
 │       └── styles.css
 ├── generate.js      # Script principal de geração
@@ -41,10 +44,17 @@ npm install
 [
   {
     "template": "template1",
-    "h1": "Título Principal",
-    "h2": "Subtítulo",
-    "bg": "nome-da-imagem-de-fundo",
-    "logo": "nome-do-logo"
+    "h1": "Título da Primeira Página",
+    "h2": "Subtítulo da Primeira Página",
+    "bg": "background1",
+    "logo": "logo1"
+  },
+  {
+    "template": "template2",
+    "h1": "Título da Segunda Página",
+    "h2": "Subtítulo da Segunda Página",
+    "bg": "background2",
+    "logo": "logo2"
   }
 ]
 ```
@@ -58,37 +68,41 @@ npm install
 node generate.js
 ```
 
-4. As artes geradas serão salvas na pasta `output/` com o nome `arte_template1_1.png`, `arte_template2_1.png`, etc.
+4. As artes geradas serão salvas na pasta `output/` com o nome `arte_template1_1.png`, `arte_template2_1.png`, etc., representando cada página do carrossel.
 
 ## Templates Disponíveis
 
-O projeto suporta múltiplos templates, cada um com seu próprio layout e estilo:
+O projeto suporta múltiplos templates, cada um representando uma página diferente do carrossel:
 
-- **template1**: Layout padrão
-- **template2**: Layout alternativo com design diferente
+- **template1**: Layout para a primeira página do carrossel
+- **template2**: Layout para a segunda página do carrossel
+- **template3**: Layout para a terceira página do carrossel
+
+Cada template tem seu próprio design e layout, permitindo criar uma sequência visual coesa e atraente para o carrossel.
 
 ## Gerando o data.json com GPT
 
 Para gerar o arquivo data.json usando GPT, use o seguinte prompt:
 
 ```
-Preciso que você gere um arquivo data.json para um gerador de artes para redes sociais. O arquivo deve conter um array de objetos, onde cada objeto representa uma arte diferente. Cada objeto deve seguir a seguinte estrutura:
+Preciso que você gere um arquivo data.json para um gerador de artes para carrosséis de posts em redes sociais. O arquivo deve conter um array de objetos, onde cada objeto representa uma página diferente do carrossel. Cada objeto deve seguir a seguinte estrutura:
 
 {
-  "template": "template1", // ou "template2" - indica qual template será usado
-  "h1": "Título Principal", // texto do título principal
-  "h2": "Subtítulo", // texto do subtítulo
+  "template": "template1", // template1, template2, template3 - indica qual página do carrossel será gerada
+  "h1": "Título da Página", // texto do título principal
+  "h2": "Subtítulo da Página", // texto do subtítulo
   "bg": "nome_do_arquivo", // nome do arquivo de background (sem extensão)
   "logo": "nome_do_logo" // nome do arquivo do logo (sem extensão)
 }
 
 Regras importantes:
-1. O campo "template" deve ser "template1" ou "template2"
+1. O campo "template" deve ser "template1", "template2" ou "template3" (representando cada página do carrossel)
 2. Os campos "bg" e "logo" devem ser nomes de arquivos que existem na pasta "input" (sem a extensão .png)
-3. Os textos em h1 e h2 devem ser relevantes para redes sociais
-4. Gere pelo menos 5 objetos diferentes no array
+3. Os textos em h1 e h2 devem ser relevantes para redes sociais e seguir uma sequência lógica entre as páginas
+4. Gere exatamente 5 objetos diferentes no array (uma para cada página do carrossel)
 5. Mantenha os textos em português
 6. Os textos devem ser curtos e impactantes, adequados para redes sociais
+7. Mantenha uma narrativa coesa entre as páginas do carrossel
 
 Exemplo de uso:
 - Se você tem um arquivo "background1.png" na pasta input, use "background1" no campo "bg"
@@ -97,10 +111,10 @@ Exemplo de uso:
 
 ## Funcionalidades
 
-- Geração automática de artes a partir de templates HTML
-- Suporte a múltiplos templates com layouts diferentes
+- Geração automática de artes para carrosséis de posts
+- Suporte a múltiplos templates, cada um representando uma página diferente do carrossel
 - Suporte a múltiplas artes em uma única execução
-- Personalização de título, subtítulo, imagem de fundo e logo
+- Personalização de título, subtítulo, imagem de fundo e logo para cada página
 - Suporte a imagens locais e URLs
 - Dimensões padrão de 1080x1350 pixels
 
