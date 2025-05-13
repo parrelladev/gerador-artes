@@ -8,45 +8,46 @@ body {
     position: relative;
     width: 1080px;
     height: 1350px;
+    display: flex;
     overflow: hidden;
 }
 
-#bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 0;
-}
-
-/* Área inferior colorida */
-.faixa-inferior {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 660px;
+/* Coluna da esquerda com texto */
+.coluna-texto {
+    width: 50%;
     background-color: #fff;
-    z-index: 1;
     padding: 60px;
     box-sizing: border-box;
-    color: #000;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: relative;
 }
 
-/* Texto explicativo na faixa */
-.texto-baixo {
+/* Coluna da direita com imagem */
+.coluna-imagem {
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Texto do conteúdo */
+.texto-conteudo {
     font-size: 42px;
     line-height: 1.2;
     font-weight: 400;
     text-align: justify;
+    margin-bottom: 40px;
 }
 
-/* Logo posicionado à direita */
+/* Imagem de fundo */
+#bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Logo */
 #logo {
     position: absolute;
     bottom: 0px;
@@ -56,4 +57,4 @@ body {
     align-self: flex-end;
     background: black;
     padding: 20px;
-}
+} 

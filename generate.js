@@ -35,7 +35,7 @@ async function waitForImages(page) {
 
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  
+
   // Configuração do viewport
   await page.setViewport({ width: 1080, height: 1350 });
 
@@ -78,17 +78,19 @@ async function waitForImages(page) {
           if (el && src) el.src = src;
         };
 
-        // Template 2 usa apenas textBody
-        if (template === 'template2') {
-          setText('textBody', text);
-        } else {
+        if (template === 'template1') {
           setText('title', h1);
           setText('subtitle', h2);
+        } else if (template === 'template2') {
+          setText('textBody', text);
+        } else if (template === 'template3') {
+          setText('textBody', text);
         }
 
         setSrc('bg', bgPath);
         setSrc('logo', logoPath);
       }, { template, h1, h2, text, bgPath, logoPath });
+
 
       // Aguarda o carregamento das imagens
       console.log('⏳ Aguardando carregamento das imagens...');

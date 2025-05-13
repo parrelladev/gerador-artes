@@ -51,6 +51,12 @@ npm install
     "text": "Texto informativo que aparecerá na faixa inferior",
     "bg": "background2",
     "logo": "logo2"
+  },
+  {
+    "template": "template3",
+    "text": "Texto mais extenso que aparecerá na coluna da esquerda, com formatação justificada e tamanho adequado para leitura",
+    "bg": "background3",
+    "logo": "logo3"
   }
 ]
 ```
@@ -85,6 +91,14 @@ O projeto suporta múltiplos templates, cada um representando uma página difere
   - Logo posicionado no canto inferior direito
   - Imagem de fundo
 - Ideal para conteúdo informativo e explicativo
+
+### Template 3
+- Layout de duas colunas
+- Elementos:
+  - Coluna da esquerda com texto justificado
+  - Coluna da direita com imagem de fundo
+  - Logo posicionado no canto inferior direito da coluna da imagem
+- Ideal para posts com conteúdo textual mais extenso e uma imagem de destaque
 
 ## Gerando o data.json com GPT
 
@@ -128,6 +142,7 @@ Exemplo de uso:
 - Suporte a múltiplos templates com layouts diferentes:
   - Template1: Layout padrão com título e subtítulo
   - Template2: Layout informativo com faixa inferior
+  - Template3: Layout de duas colunas
 - Suporte a múltiplas artes em uma única execução
 - Personalização de título, subtítulo, texto informativo, imagem de fundo e logo para cada página
 - Suporte a imagens locais e URLs
