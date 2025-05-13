@@ -96,32 +96,54 @@ Para gerar o arquivo data.json usando GPT, use o seguinte prompt:
 Preciso que você gere um arquivo data.json para um gerador de artes para carrosséis de posts em redes sociais. O arquivo deve conter um array de objetos, onde cada objeto representa uma página diferente do carrossel. Cada objeto deve seguir a seguinte estrutura:
 
 {
-  "template": "template1", // template1 ou template2 - indica qual página do carrossel será gerada
-  "h1": "Título da Página", // texto do título principal (apenas para template1)
-  "h2": "Subtítulo da Página", // texto do subtítulo
-  "text": "Texto informativo", // texto para a faixa inferior (apenas para template2)
-  "bg": "nome_do_arquivo", // nome do arquivo de background (sem extensão)
-  "logo": "nome_do_logo" // nome do arquivo do logo (sem extensão)
+  "template": "template1", // template1 ou template2 - indica qual layout será usado
+  "h1": "Título da Página", // apenas para template1
+  "h2": "Subtítulo da Página", // obrigatório para ambos os templates
+  "text": "Texto explicativo", // apenas para template2
+  "bg": "nome_do_arquivo_ou_url", // nome do arquivo de background (sem extensão) ou URL
+  "logo": "nome_do_logo_ou_url" // nome do arquivo do logo (sem extensão) ou URL
 }
 
 Regras importantes:
 1. O campo "template" deve ser "template1" ou "template2"
 2. Para template1:
-   - Incluir h1 e h2
-   - Não incluir o campo text
+   - Incluir os campos "h1" e "h2"
+   - Não incluir o campo "text"
 3. Para template2:
-   - Incluir apenas h2 e text
-   - Não incluir o campo h1
-4. Os campos "bg" e "logo" devem ser nomes de arquivos que existem na pasta "input" (sem a extensão .png)
-5. Os textos devem ser relevantes para redes sociais e seguir uma sequência lógica entre as páginas
-6. Gere exatamente 5 objetos diferentes no array (uma para cada página do carrossel)
-7. Mantenha os textos em português
-8. Os textos devem ser curtos e impactantes, adequados para redes sociais
-9. Mantenha uma narrativa coesa entre as páginas do carrossel
+   - Incluir os campos "h2" e "text"
+   - Não incluir o campo "h1"
+4. Os campos "bg" e "logo" podem conter:
+   - Um nome de arquivo que existe na pasta "input" (sem a extensão .png)
+   - Ou uma URL completa válida de imagem
+5. Os textos devem estar em português
+6. Os textos devem ser curtos, impactantes e adequados para redes sociais
+7. As páginas devem formar uma narrativa coesa, com sequência lógica entre os conteúdos
+8. Gere exatamente 5 objetos no array (uma para cada página do carrossel)
 
 Exemplo de uso:
 - Se você tem um arquivo "background1.png" na pasta input, use "background1" no campo "bg"
 - Se você tem um arquivo "logo_empresa.png" na pasta input, use "logo_empresa" no campo "logo"
+- Se quiser usar uma imagem externa, pode usar uma URL como:
+  "bg": "https://i.imgur.com/abc123.jpg"
+
+Exemplo de entrada válida:
+
+[
+  {
+    "template": "template1",
+    "h1": "HPV: um vírus silencioso",
+    "h2": "mas que pode deixar marcas para sempre",
+    "bg": "background1",
+    "logo": "redegazeta"
+  },
+  {
+    "template": "template2",
+    "h2": "Por que falar sobre HPV é urgente?",
+    "text": "O HPV é a IST mais comum no mundo e, muitas vezes, não apresenta sintomas. Mas ele pode causar verrugas genitais e até câncer. A vacina gratuita pelo SUS é a melhor prevenção.",
+    "bg": "https://i.pinimg.com/1200x/43/59/e8/4359e842f5938cfac8e7d38b767b8df7.jpg",
+    "logo": "redegazeta"
+  }
+]
 ```
 
 ## Funcionalidades
