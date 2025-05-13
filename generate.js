@@ -2,10 +2,17 @@ const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
 
+// Função para validar se o template existe
+function validateTemplate(templateName) {
+  const templatePath = path.join('templates', templateName);
+  if (!fs.existsSync(templatePath)) {
+    throw new Error(`Template "${templateName}" não encontrado em ${templatePath}`);
+  }
+  return templatePath;
+}
+
 (async () => {
   const data = JSON.parse(fs.readFileSync('./input/data.json', 'utf-8'));
-  const templatePath = 'templates/index.html';
-  const templateURL = 'file://' + path.resolve(templatePath);
   const outputDir = './output';
 
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
@@ -15,7 +22,12 @@ const puppeteer = require('puppeteer');
   await page.setViewport({ width: 1080, height: 1350 });
 
   for (let i = 0; i < data.length; i++) {
-    const { h1, h2, bg, logo } = data[i];
+    const { template, h1, h2, bg, logo } = data[i];
+    
+    // Valida e obtém o caminho do template
+    const templatePath = validateTemplate(template);
+    const templateURL = 'file://' + path.resolve(path.join(templatePath, 'index.html'));
+    
     await page.goto(templateURL);
 
     const bgPath = bg.startsWith('http') ? bg : 'file://' + path.resolve('./input/' + bg + '.png');
@@ -37,7 +49,7 @@ const puppeteer = require('puppeteer');
       }));
     });
 
-    const outputFilePath = path.join(outputDir, `arte_${i + 1}.png`);
+    const outputFilePath = path.join(outputDir, `arte_${template}_${i + 1}.png`);
     await page.screenshot({ path: outputFilePath });
     console.log(`✅ Imagem salva: ${outputFilePath}`);
   }
