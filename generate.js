@@ -81,16 +81,13 @@ async function waitForImages(page) {
         if (template === 'template1') {
           setText('title', h1);
           setText('subtitle', h2);
-        } else if (template === 'template2') {
-          setText('textBody', text);
-        } else if (template === 'template3') {
+        } else if (['template2', 'template3', 'template4'].includes(template)) {
           setText('textBody', text);
         }
 
         setSrc('bg', bgPath);
         setSrc('logo', logoPath);
       }, { template, h1, h2, text, bgPath, logoPath });
-
 
       // Aguarda o carregamento das imagens
       console.log('⏳ Aguardando carregamento das imagens...');

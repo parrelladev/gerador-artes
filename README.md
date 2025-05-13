@@ -139,11 +139,15 @@ Regras importantes:
    - Incluir apenas o campo text
    - Não incluir os campos h1 e h2
    - O texto será exibido na coluna da esquerda com formatação justificada
-5. O campo "bg" deve conter um link direto para uma imagem gratuita e relevante ao conteúdo, preferencialmente de fontes como Unsplash ou Pexels.
-6. O campo "logo" deve conter apenas o nome de um arquivo (sem extensão), que está localizado na pasta input/
-7. Os textos devem ser em português, curtos, impactantes e adequados para redes sociais.
-8. O conteúdo deve seguir uma sequência lógica e narrativa coesa entre as páginas.
-9. Gere exatamente 5 objetos diferentes no array.
+5. Para template4:
+   - Incluir apenas o campo text
+   - Não incluir os campos h1 e h2
+   - O texto será exibido na coluna da direita com formatação justificada
+6. O campo "bg" deve conter um link direto para uma imagem gratuita e relevante ao conteúdo, preferencialmente de fontes como Unsplash ou Pexels.
+7. O campo "logo" deve conter apenas o nome de um arquivo (sem extensão), que está localizado na pasta input/
+8. Os textos devem ser em português, curtos, impactantes e adequados para redes sociais.
+9. O conteúdo deve seguir uma sequência lógica e narrativa coesa entre as páginas.
+10. Gere exatamente 5 objetos diferentes no array.
 
 Tema da postagem: [INSIRA O TEMA AQUI]
 ```
