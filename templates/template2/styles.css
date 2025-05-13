@@ -27,7 +27,7 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 660px;
+    min-height: 300px;
     background-color: #fff;
     z-index: 1;
     padding: 60px;
@@ -43,6 +43,8 @@ body {
     font-size: 42px;
     line-height: 1.2;
     font-weight: 400;
+    text-align: justify;
+    margin-bottom: 40px;
 }
 
 /* Logo posicionado à direita */
@@ -55,5 +57,4 @@ body {
     align-self: flex-end;
     background: black;
     padding: 20px;
-    padding-bottom: 35px;
 }
