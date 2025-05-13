@@ -119,11 +119,8 @@ Cada objeto deve seguir a seguinte estrutura:
 }
 
 Importante:
-
     Os links de imagem no campo "bg" devem ser diretos e funcionais (terminando com .jpg ou .png) para que possam ser usados em CSS como background-image.
-
     Não use links de páginas de imagem ou redirecionamentos.
-
     O conteúdo deve seguir um tema, com narrativa coesa e textos curtos, impactantes e em português.
 
 Regras importantes:
