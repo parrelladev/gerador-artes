@@ -91,7 +91,7 @@ O projeto suporta múltiplos templates, cada um representando uma página difere
   - Logo posicionado no canto inferior direito
   - Imagem de fundo
 - Ideal para conteúdo informativo e explicativo
-
+                            
 ### Template 3
 - Layout de duas colunas
 - Elementos:
@@ -108,28 +108,32 @@ Para gerar o arquivo data.json usando GPT, use o seguinte prompt:
 Preciso que você gere um arquivo data.json para um gerador de artes para carrosséis de posts em redes sociais. O arquivo deve conter um array de objetos, onde cada objeto representa uma página diferente do carrossel. Cada objeto deve seguir a seguinte estrutura:
 
 {
-  "template": "template1", // template1 ou template2 - indica qual página do carrossel será gerada
+  "template": "template1", // template1, template2 ou template3 - indica qual página do carrossel será gerada
   "h1": "Título da Página", // texto do título principal (apenas para template1)
   "h2": "Subtítulo da Página", // texto do subtítulo (apenas para template1)
-  "text": "Texto informativo", // texto para a faixa inferior (apenas para template2)
+  "text": "Texto informativo", // texto para a faixa inferior (template2) ou coluna da esquerda (template3)
   "bg": "nome_do_arquivo", // nome do arquivo de background (sem extensão)
   "logo": "nome_do_logo" // nome do arquivo do logo (sem extensão)
 }
 
 Regras importantes:
-1. O campo "template" deve ser "template1" ou "template2"
+1. O campo "template" deve ser "template1", "template2" ou "template3"
 2. Para template1:
    - Incluir h1 e h2
    - Não incluir o campo text
 3. Para template2:
    - Incluir apenas o campo text
    - Não incluir os campos h1 e h2
-4. Os campos "bg" e "logo" devem ser nomes de arquivos que existem na pasta "input" (sem a extensão .png)
-5. Os textos devem ser relevantes para redes sociais e seguir uma sequência lógica entre as páginas
-6. Gere exatamente 5 objetos diferentes no array (uma para cada página do carrossel)
-7. Mantenha os textos em português
-8. Os textos devem ser curtos e impactantes, adequados para redes sociais
-9. Mantenha uma narrativa coesa entre as páginas do carrossel
+4. Para template3:
+   - Incluir apenas o campo text
+   - Não incluir os campos h1 e h2
+   - O texto será exibido na coluna da esquerda com formatação justificada
+5. Os campos "bg" e "logo" devem ser nomes de arquivos que existem na pasta "input" (sem a extensão .png)
+6. Os textos devem ser relevantes para redes sociais e seguir uma sequência lógica entre as páginas
+7. Gere exatamente 5 objetos diferentes no array (uma para cada página do carrossel)
+8. Mantenha os textos em português
+9. Os textos devem ser curtos e impactantes, adequados para redes sociais
+10. Mantenha uma narrativa coesa entre as páginas do carrossel
 
 Exemplo de uso:
 - Se você tem um arquivo "background1.png" na pasta input, use "background1" no campo "bg"
