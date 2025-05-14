@@ -38,6 +38,7 @@ body {
     font-weight: 400;
     text-align: left;
     margin-bottom: 40px;
+    white-space: pre-line;
 }
 
 /* Imagem de fundo */

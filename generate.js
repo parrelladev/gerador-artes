@@ -40,8 +40,8 @@ async function waitForImages(page) {
   await page.setViewport({ width: 1080, height: 1350 });
 
   // Configuração de timeout mais longo
-  page.setDefaultNavigationTimeout(30000);
-  page.setDefaultTimeout(30000);
+  page.setDefaultNavigationTimeout(50000);
+  page.setDefaultTimeout(50000);
 
   for (let i = 0; i < data.length; i++) {
     try {

@@ -43,6 +43,7 @@ body {
     line-height: 1.2;
     font-weight: 400;
     text-align: justify;
+    white-space: pre-line;
 }
 
 /* Logo posicionado à direita */
