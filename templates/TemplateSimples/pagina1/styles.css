@@ -1,0 +1,73 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Georgia', serif;
+  background-color: #e6f0f8;
+  color: white;
+}
+
+#art {
+  position: relative;
+  width: 1080px;
+  height: 1350px;
+  overflow: hidden;
+}
+
+#bg {
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  object-fit: cover;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#logo {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  z-index: 2;
+}
+
+.text {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: 50%;
+  background-color: #5b9fc6;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 20px;
+  z-index: 3;
+}
+
+.tag {
+  background: white;
+  color: black;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+#title {
+  font-size: 2.4rem;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+#subtitle {
+  font-size: 1.2rem;
+  font-weight: normal;
+  line-height: 1.5;
+}

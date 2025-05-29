@@ -11,12 +11,30 @@ Este é um projeto Node.js que automatiza a geração de artes gráficas para ca
 │   └── imagens/     # Pasta para armazenar imagens de fundo e logos
 ├── output/          # Pasta onde as artes geradas serão salvas
 ├── templates/
-│   ├── template1/   # Template para a primeira página do carrossel
-│   │   ├── index.html
-│   │   └── styles.css
-│   └── template2/   # Template para a segunda página do carrossel
-│       ├── index.html
-│       └── styles.css
+│   ├── TemplateSimples/   # Templates com layouts mais simples
+│   │   ├── pagina1/      # Template para a primeira página
+│   │   │   ├── index.html
+│   │   │   └── styles.css
+│   │   ├── pagina2/      # Template para a segunda página
+│   │   │   ├── index.html
+│   │   │   └── styles.css
+│   │   └── ...
+│   ├── TemplateTopicos/  # Templates com layouts mais elaborados
+│   │   ├── pagina1/      # Template para a primeira página
+│   │   │   ├── index.html
+│   │   │   └── styles.css
+│   │   ├── pagina2/      # Template para a segunda página
+│   │   │   ├── index.html
+│   │   │   └── styles.css
+│   │   └── ...
+│   └── TemplateAGazeta/  # Templates com estilo da A Gazeta
+│       ├── pagina1/      # Template para a primeira página
+│       │   ├── index.html
+│       │   └── styles.css
+│       ├── pagina2/      # Template para a segunda página
+│       │   ├── index.html
+│       │   └── styles.css
+│       └── ...
 ├── generate.js      # Script principal de geração
 └── package.json     # Dependências do projeto
 ```
@@ -40,23 +58,19 @@ npm install
 ```json
 [
   {
-    "template": "template1",
+    "template": "TemplateAGazeta",
+    "page": "pagina1",
     "h1": "Título da Primeira Página",
     "h2": "Subtítulo da Primeira Página",
     "bg": "background1",
     "logo": "logo1"
   },
   {
-    "template": "template2",
+    "template": "TemplateAGazeta",
+    "page": "pagina2",
     "text": "Texto informativo que aparecerá na faixa inferior",
     "bg": "background2",
     "logo": "logo2"
-  },
-  {
-    "template": "template3",
-    "text": "Texto mais extenso que aparecerá na coluna da esquerda, com formatação justificada e tamanho adequado para leitura",
-    "bg": "background3",
-    "logo": "logo3"
   }
 ]
 ```
@@ -70,13 +84,16 @@ npm install
 node generate.js
 ```
 
-4. As artes geradas serão salvas na pasta `output/` com o nome `arte_template1_1.png`, `arte_template2_1.png`, etc., representando cada página do carrossel.
+4. As artes geradas serão salvas na pasta `output/` com o nome `arte_TemplateAGazeta_pagina1_1.png`, `arte_TemplateAGazeta_pagina2_1.png`, etc., representando cada página do carrossel.
 
 ## Templates Disponíveis
 
-O projeto suporta múltiplos templates, cada um representando uma página diferente do carrossel:
+O projeto suporta três tipos de templates, cada um com suas próprias variações de página:
 
-### Template 1
+### TemplateSimples
+Templates com layouts mais diretos e minimalistas.
+
+#### Página 1 (pagina1)
 - Layout padrão com título e subtítulo centralizados
 - Elementos:
   - Título principal (h1)
@@ -84,21 +101,52 @@ O projeto suporta múltiplos templates, cada um representando uma página difere
   - Logo centralizado
   - Imagem de fundo
 
-### Template 2
+#### Página 2 (pagina2)
 - Layout informativo com faixa inferior
 - Elementos:
   - Faixa inferior com texto informativo
   - Logo posicionado no canto inferior direito
   - Imagem de fundo
 - Ideal para conteúdo informativo e explicativo
-                            
-### Template 3
-- Layout de duas colunas
+
+### TemplateTopicos
+Templates com layouts mais elaborados e focados em tópicos.
+
+#### Página 1 (pagina1)
+- Layout com card verde e seta indicativa
 - Elementos:
-  - Coluna da esquerda com texto justificado
-  - Coluna da direita com imagem de fundo
-  - Logo posicionado no canto inferior direito da coluna da imagem
-- Ideal para posts com conteúdo textual mais extenso e uma imagem de destaque
+  - Card verde com título
+  - Seta indicativa
+  - Imagem inferior com handle
+- Ideal para introdução de tópicos
+
+#### Página 2 (pagina2)
+- Layout informativo com faixa inferior
+- Elementos:
+  - Faixa inferior com texto informativo
+  - Logo posicionado no canto inferior direito
+  - Imagem de fundo
+- Ideal para conteúdo informativo e explicativo
+
+### TemplateAGazeta
+Templates com estilo da A Gazeta.
+
+#### Página 1 (pagina1)
+- Layout com estilo jornalístico
+- Elementos:
+  - Título principal (h1)
+  - Subtítulo (h2)
+  - Logo posicionado
+  - Imagem de fundo
+- Ideal para notícias e reportagens
+
+#### Página 2 (pagina2)
+- Layout com estilo jornalístico
+- Elementos:
+  - Texto informativo
+  - Logo posicionado
+  - Imagem de fundo
+- Ideal para continuação de notícias e reportagens
 
 ## Gerando o data.json com GPT
 
@@ -110,10 +158,11 @@ O arquivo deve conter um array de objetos, onde cada objeto representa uma pági
 Cada objeto deve seguir a seguinte estrutura:
 
 {
-  "template": "template1", // template1, template2 ou template3 - indica qual página do carrossel será gerada
-  "h1": "Título da Página", // texto do título principal (apenas para template1)
-  "h2": "Subtítulo da Página", // texto do subtítulo (apenas para template1)
-  "text": "Texto informativo", // texto para a faixa inferior (template2) ou coluna da esquerda (template3)
+  "template": "TemplateAGazeta", // "TemplateTopicos", "TemplateSimples" ou "TemplateAGazeta" - indica o tipo de template
+  "page": "pagina1", // "pagina1", "pagina2", "pagina3" ou "pagina4" - indica qual página do carrossel será gerada
+  "h1": "Título da Página", // texto do título principal (apenas para pagina1)
+  "h2": "Subtítulo da Página", // texto do subtítulo (apenas para pagina1)
+  "text": "Texto informativo", // texto para a faixa inferior (pagina2) ou coluna de texto (pagina3 e pagina4)
   "bg": link direto de imagem (terminando com .jpg ou .png, sem redirecionamento ou página de visualização, de fontes como Pixabay, Pexels, FreeImages)
   "logo": "nome_do_logo" // nome do arquivo do logo (sem extensão)
 }
@@ -125,26 +174,27 @@ Importante:
 
 Regras importantes:
 
-1. O campo "template" deve ser "template1", "template2" ou "template3".
-2. Para template1:
+1. O campo "template" deve ser "TemplateTopicos", "TemplateSimples" ou "TemplateAGazeta".
+2. O campo "page" deve ser "pagina1", "pagina2", "pagina3" ou "pagina4".
+3. Para pagina1:
    - Incluir h1 e h2
    - Não incluir o campo text
-3. Para template2:
+4. Para pagina2:
    - Incluir apenas o campo text
    - Não incluir os campos h1 e h2
-4. Para template3:
+5. Para pagina3:
    - Incluir apenas o campo text
    - Não incluir os campos h1 e h2
    - O texto será exibido na coluna da esquerda com formatação justificada
-5. Para template4:
+6. Para pagina4:
    - Incluir apenas o campo text
    - Não incluir os campos h1 e h2
    - O texto será exibido na coluna da direita com formatação justificada
-6. O campo "bg" deve conter um link direto para uma imagem gratuita e relevante ao conteúdo, preferencialmente de fontes como Unsplash ou Pexels.
-7. O campo "logo" deve conter apenas o nome de um arquivo (sem extensão), que está localizado na pasta input/
-8. Os textos devem ser em português, curtos, impactantes e adequados para redes sociais.
-9. O conteúdo deve seguir uma sequência lógica e narrativa coesa entre as páginas.
-10. Gere exatamente 5 objetos diferentes no array.
+7. O campo "bg" deve conter um link direto para uma imagem gratuita e relevante ao conteúdo, preferencialmente de fontes como Unsplash ou Pexels.
+8. O campo "logo" deve conter apenas o nome de um arquivo (sem extensão), que está localizado na pasta input/
+9. Os textos devem ser em português, curtos, impactantes e adequados para redes sociais.
+10. O conteúdo deve seguir uma sequência lógica e narrativa coesa entre as páginas.
+11. Gere exatamente 5 objetos diferentes no array.
 
 Tema da postagem: [INSIRA O TEMA AQUI]
 ```
@@ -152,10 +202,10 @@ Tema da postagem: [INSIRA O TEMA AQUI]
 ## Funcionalidades
 
 - Geração automática de artes para carrosséis de posts
-- Suporte a múltiplos templates com layouts diferentes:
-  - Template1: Layout padrão com título e subtítulo
-  - Template2: Layout informativo com faixa inferior
-  - Template3: Layout de duas colunas
+- Suporte a múltiplos tipos de templates:
+  - TemplateSimples: Layouts mais diretos e minimalistas
+  - TemplateTopicos: Layouts mais elaborados e focados em tópicos
+  - TemplateAGazeta: Layouts com estilo jornalístico
 - Suporte a múltiplas artes em uma única execução
 - Personalização de título, subtítulo, texto informativo, imagem de fundo e logo para cada página
 - Suporte a imagens locais e URLs

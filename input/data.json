@@ -1,22 +1,29 @@
 [
   {
-    "template": "template1",
-    "h1": "HPV: um vírus silencioso",
-    "h2": "mas que pode deixar marcas para sempre",
-    "bg": "https://i.pinimg.com/1200x/43/59/e8/4359e842f5938cfac8e7d38b767b8df7.jpg",
-    "logo": "redegazeta"
+    "template": "TemplateAGazeta",
+    "page": "pagina1",
+    "h1": "Vereador propõe construir monumento com cruz e Bíblia na Praia de Camburi",
+    "h2": "Proposta do vereador Armandinho Fontoura (PL) sugere parceria público-privada para instalar monumento religioso na orla de Vitória.",
+    "bg": "https://midias.agazeta.com.br/2024/05/28/monumento-camburi-cruz-biblia-article.jpg",
+    "logo": "AGazeta-negativo",
+    "tag": "Política"
   },
   {
-    "template": "template3",
-    "h2": "Por que falar sobre HPV é urgente?",
-    "text": "O HPV é a IST mais comum no mundo e, muitas vezes, não apresenta sintomas. Mas ele pode causar verrugas genitais e até câncer de colo do útero, ânus e garganta. A boa notícia? Existe vacina gratuita pelo SUS para prevenir os tipos mais perigosos. Falar é se cuidar.",
-    "bg": "https://i.pinimg.com/1200x/c3/c7/b1/c3c7b1abb6e5bebe0e3ecc1bc0c07441.jpg",
-    "logo": "redegazeta"
+    "template": "TemplateAGazeta",
+    "page": "pagina1",
+    "h1": "Lavrador que decapitou homem em Santa Teresa é condenado a 21 anos de prisão",
+    "h2": "José Cândido Felix foi condenado pelo Tribunal do Júri por homicídio triplamente qualificado e destruição de cadáver, mas está foragido.",
+    "bg": "https://midias.agazeta.com.br/2025/05/28/forum-de-santa-teresa-onde-ocorreu-o-juri-2744410-article.webp",
+    "logo": "AGazeta-negativo",
+    "tag": "Polícia"
   },
   {
-  "template": "template3",
-  "text": "Enquanto muita gente ainda segue padrões, algumas vozes se destacam e mostram que é possível ser diferente.",
-  "bg": "https://i.pinimg.com/1200x/43/59/e8/4359e842f5938cfac8e7d38b767b8df7.jpg",
-  "logo": "redegazeta"
-}
+    "template": "TemplateAGazeta",
+    "page": "pagina1",
+    "h1": "Cachorro-do-mato é resgatado às margens da BR-101, na Serra",
+    "h2": "Animal silvestre foi encontrado ferido próximo à rodovia e recebeu atendimento de equipes ambientais.",
+    "bg": "https://midias.agazeta.com.br/2025/05/28/femea-de-cachorro-do-mato-e-resgatada-na-br-101-na-serra-2744164-article.webp",
+    "logo": "AGazeta-negativo",
+    "tag": "Cotidiano"
+  }
 ]

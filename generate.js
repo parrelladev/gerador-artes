@@ -3,10 +3,10 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 
 // Função para validar se o template existe
-function validateTemplate(templateName) {
-  const templatePath = path.join('templates', templateName);
+function validateTemplate(templateName, pageName) {
+  const templatePath = path.join('templates', templateName, pageName);
   if (!fs.existsSync(templatePath)) {
-    throw new Error(`Template "${templateName}" não encontrado em ${templatePath}`);
+    throw new Error(`Template "${templateName}/${pageName}" não encontrado em ${templatePath}`);
   }
   return templatePath;
 }
@@ -46,11 +46,11 @@ async function waitForImages(page) {
   for (let i = 0; i < data.length; i++) {
     try {
       const item = data[i];
-      const { template, h1, h2, bg, logo, text } = item;
+      const { template, page: pageName, h1, h2, bg, logo, text } = item;
 
-      console.log(`\n🔄 Processando arte ${i + 1} com template ${template}...`);
+      console.log(`\n🔄 Processando arte ${i + 1} com template ${template}/${pageName}...`);
 
-      const templatePath = validateTemplate(template);
+      const templatePath = validateTemplate(template, pageName);
       const templateURL = 'file://' + path.resolve(path.join(templatePath, 'index.html'));
 
       // Navega para o template
@@ -68,7 +68,7 @@ async function waitForImages(page) {
       }
 
       // Preenche os elementos de acordo com o template
-      await page.evaluate(({ template, h1, h2, text, bgPath, logoPath }) => {
+      await page.evaluate(({ template, pageName, h1, h2, text, bgPath, logoPath }) => {
         const setText = (id, value) => {
           const el = document.getElementById(id);
           if (el && value) el.textContent = value;
@@ -78,23 +78,35 @@ async function waitForImages(page) {
           if (el && src) el.src = src;
         };
 
-        if (template === 'template1') {
-          setText('title', h1);
-          setText('subtitle', h2);
-        } else if (['template2', 'template3', 'template4'].includes(template)) {
-          setText('textBody', text);
-        }
-
+        // Configura os elementos comuns
         setSrc('bg', bgPath);
         setSrc('logo', logoPath);
-      }, { template, h1, h2, text, bgPath, logoPath });
+
+        // Configura os elementos específicos de cada template
+        if (template === 'TemplateAGazeta') {
+          if (pageName === 'pagina1') {
+            setText('title', h1);
+            setText('subtitle', h2);
+          } else {
+            setText('textBody', text);
+          }
+        } else {
+          // Configuração padrão para outros templates
+          if (pageName === 'pagina1') {
+            setText('title', h1);
+            setText('subtitle', h2);
+          } else {
+            setText('textBody', text);
+          }
+        }
+      }, { template, pageName, h1, h2, text, bgPath, logoPath });
 
       // Aguarda o carregamento das imagens
       console.log('⏳ Aguardando carregamento das imagens...');
       await waitForImages(page);
       console.log('✅ Imagens carregadas com sucesso');
 
-      const outputFilePath = path.join(outputDir, `arte_${template}_${i + 1}.png`);
+      const outputFilePath = path.join(outputDir, `arte_${template}_${pageName}_${i + 1}.png`);
       await page.screenshot({ path: outputFilePath });
       console.log(`✅ Imagem salva: ${outputFilePath}`);
 
