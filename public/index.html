@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Artes - Instagram</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Gerador de Artes</h1>
+            <p>Escolha o formato e gere sua arte:</p>
+        </header>
+
+        <!-- Templates Grid -->
+        <main class="templates-grid">
+            <!-- Template A Gazeta Carrossel -->
+            <div class="template-card" data-template="TemplateAGazeta">
+                <div class="template-preview">
+                    <img src="previews/carrossel.jpg" alt="Template A Gazeta Carrossel" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="template-placeholder" style="display: none;">
+                        <i class="fa-solid fa-file-image"></i>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <h3>A Gazeta - Feed</h3>
+                    <p>1080x1350px</p>
+                </div>
+            </div>
+
+            <!-- Template A Gazeta Feed -->
+            <div class="template-card" data-template="TemplateAGazetaFeed">
+                <div class="template-preview">
+                    <img src="previews/feed.jpg" alt="Template A Gazeta Feed" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="template-placeholder" style="display: none;">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <h3>A Gazeta - Feed</h3>
+                    <p>1080x1080px</p>
+                </div>
+            </div>
+
+              <!-- Template A Gazeta Stories -->
+              <div class="template-card" data-template="TemplateAGazetaStories">
+                <div class="template-preview">
+                    <img src="previews/stories.jpg" alt="Template A Gazeta Stories" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="template-placeholder" style="display: none;">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <h3>A Gazeta - Stories</h3>
+                    <p>1080x1920px</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal -->
+        <div class="modal" id="templateModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Gerar Arte</h2>
+                    <button class="close-btn" id="closeModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newsUrl">Link da Notícia:</label>
+                        <input type="url" id="newsUrl" placeholder="Cole aqui o link da notícia...">
+                    </div>
+                    <div class="form-group">
+                        <label for="customTitle">Título Personalizado (opcional):</label>
+                        <input type="text" id="customTitle" placeholder="Deixe vazio para usar o título da notícia">
+                    </div>
+                    <div class="form-group">
+                        <label for="customSubtitle">Subtítulo Personalizado (opcional):</label>
+                        <input type="text" id="customSubtitle" placeholder="Deixe vazio para usar o subtítulo da notícia">
+                    </div>
+                    <div class="form-group">
+                        <label for="customTag">Tag/Categoria *</label>
+                        <input type="text" id="customTag" placeholder="Ex: Acidente, Política, Esporte, etc." required list="categorySuggestions">
+                        <datalist id="categorySuggestions">
+                            <option value="Acidente">
+                            <option value="Política">
+                            <option value="Esporte">
+                            <option value="Economia">
+                            <option value="Saúde">
+                            <option value="Educação">
+                            <option value="Tecnologia">
+                            <option value="Meio Ambiente">
+                            <option value="Cultura">
+                            <option value="Trânsito">
+                            <option value="Urgente">
+                            <option value="Breaking">
+                            <option value="Especial">
+                        </datalist>
+                        <div class="form-help">Digite a categoria da notícia</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                    <button class="btn btn-primary" id="generateBtn">
+                        <i class="fas fa-magic"></i>
+                        Gerar Arte
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Gerando sua arte...</p>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

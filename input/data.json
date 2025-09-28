@@ -1,11 +1,11 @@
 [
   {
-    "template": "TemplateAGazeta",
-    "logo": "logo",
+    "template": "TemplateAGazetaStories",
     "page": "pagina1",
-    "tag": "Política",
-    "h1": "Tudo o que você precisa saber para a 34ª Dez Milhas Garoto",
-    "h2": "Tradicional prova será neste domingo (28), a partir das 6h30, com saída de Camburi e chegada na fábrica da Garoto",
-    "bg": "https://midias.agazeta.com.br/2024/09/30/1200x630/33-dez-milhas-garoto-2443329.jpg"
+    "h1": "Os escravizados que ajudaram na construção do Convento da Penha",
+    "h2": "Negros atuaram nas obras para erguer o Convento da Penha e continuaram no local após o templo ficar pronto, atuando na manutenção do espaço",
+    "tag": "Cultura",
+    "bg": "https://midias.agazeta.com.br/2025/05/13/convento-da-penha-contou-com-o-trabalho-de-escravizados-na-construcao-credito-frm-escar-ufes-2725736-article.webp",
+    "logo": "logo"
   }
 ]

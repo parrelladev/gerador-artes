@@ -2,6 +2,20 @@ const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
 
+// Configuração de dimensões por template
+const templateDimensions = {
+  'TemplateAGazeta': { width: 1080, height: 1350 },
+  'TemplateAGazetaStories': { width: 1080, height: 1920 },
+  'TemplateAGazetaFeed': { width: 1080, height: 1080 },
+  'TemplateSimples': { width: 1080, height: 1350 },
+  'TemplateTopicos': { width: 1080, height: 1350 },
+  'default': { width: 1080, height: 1350 }
+};
+
+function getTemplateDimensions(templateName) {
+  return templateDimensions[templateName] || templateDimensions['default'];
+}
+
 // Função para validar se o template existe
 function validateTemplate(templateName, pageName) {
   const templatePath = path.join('templates', templateName, pageName);
@@ -29,15 +43,14 @@ async function waitForImages(page) {
 
 (async () => {
   const data = JSON.parse(fs.readFileSync('./input/data.json', 'utf-8'));
-  const outputDir = './output';
+  const outputDir = process.env.OUTPUT_DIR || './output';
 
-  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  // Configuração do viewport
-  await page.setViewport({ width: 1080, height: 1350 });
+  // Configuração do viewport será definida por template
 
   // Configuração de timeout mais longo
   page.setDefaultNavigationTimeout(50000);
@@ -46,9 +59,14 @@ async function waitForImages(page) {
   for (let i = 0; i < data.length; i++) {
     try {
       const item = data[i];
-      const { template, page: pageName, h1, h2, bg, logo, text } = item;
+      const { template, page: pageName, h1, h2, bg, logo, text, tag } = item;
 
       console.log(`\n🔄 Processando arte ${i + 1} com template ${template}/${pageName}...`);
+
+      // Configurar viewport baseado no template
+      const dimensions = getTemplateDimensions(template);
+      await page.setViewport({ width: dimensions.width, height: dimensions.height });
+      console.log(`📐 Dimensões: ${dimensions.width}x${dimensions.height}`);
 
       const templatePath = validateTemplate(template, pageName);
       const templateURL = 'file://' + path.resolve(path.join(templatePath, 'index.html'));
@@ -68,7 +86,7 @@ async function waitForImages(page) {
       }
 
       // Preenche os elementos de acordo com o template
-      await page.evaluate(({ template, pageName, h1, h2, text, bgPath, logoPath }) => {
+      await page.evaluate(({ template, pageName, h1, h2, text, bgPath, logoPath, tag }) => {
         const setText = (id, value) => {
           const el = document.getElementById(id);
           if (el && value) el.textContent = value;
@@ -81,6 +99,11 @@ async function waitForImages(page) {
         // Configura os elementos comuns
         setSrc('bg', bgPath);
         setSrc('logo', logoPath);
+
+        // Configura a tag se existir
+        if (tag) {
+          setText('tag', tag);
+        }
 
         // Configura os elementos específicos de cada template
         if (template === 'TemplateAGazeta') {
@@ -99,7 +122,7 @@ async function waitForImages(page) {
             setText('textBody', text);
           }
         }
-      }, { template, pageName, h1, h2, text, bgPath, logoPath });
+      }, { template, pageName, h1, h2, text, bgPath, logoPath, tag });
 
       // Aguarda o carregamento das imagens
       console.log('⏳ Aguardando carregamento das imagens...');

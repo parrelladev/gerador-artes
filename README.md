@@ -1,6 +1,62 @@
 # Gerador de Artes
 
-Este é um projeto Node.js que automatiza a geração de artes gráficas para carrosséis de posts em redes sociais usando Puppeteer. O projeto permite criar sequências de artes personalizadas, onde cada template representa uma página diferente do carrossel, cada uma com seu próprio layout e estilo.
+Este é um projeto Node.js que automatiza a geração de artes gráficas para carrosséis de posts em redes sociais usando Puppeteer. O projeto agora inclui uma **interface web moderna e intuitiva** que permite criar sequências de artes personalizadas de forma visual e fácil, onde cada template representa uma página diferente do carrossel, cada uma com seu próprio layout e estilo.
+
+## 🚀 Nova Interface Web
+
+O projeto agora conta com uma interface web completa que permite:
+
+- **Seleção Visual de Templates**: Escolha entre diferentes estilos de templates com preview
+- **Configuração Intuitiva**: Formulários dinâmicos que se adaptam ao template selecionado
+- **Upload de Arquivos**: Interface drag-and-drop para imagens e logos
+- **Geração Automática**: Processo simplificado de geração das artes
+- **Download Direto**: Baixe as artes geradas diretamente da interface
+
+## 🎯 Como Usar a Interface
+
+1. **Inicie o servidor**:
+   ```bash
+   npm start
+   ```
+
+2. **Acesse a interface**:
+   Abra seu navegador em `http://localhost:3000`
+
+3. **Siga os passos**:
+   - Escolha um template
+   - Selecione as páginas desejadas
+   - Configure o conteúdo
+   - Faça upload dos arquivos
+   - Gere suas artes!
+
+## 📋 Funcionalidades da Interface
+
+### 1. Seleção de Templates
+- Preview visual de cada template
+- Descrição das características
+- Informação sobre páginas disponíveis
+
+### 2. Configuração de Páginas
+- Seleção múltipla de páginas
+- Preview de cada página
+- Descrição do propósito de cada uma
+
+### 3. Formulários Dinâmicos
+- Campos que se adaptam ao template/página
+- Validação em tempo real
+- Ajuda contextual para cada campo
+
+### 4. Upload de Arquivos
+- Interface drag-and-drop
+- Suporte a múltiplos arquivos
+- Preview dos arquivos enviados
+- Validação de tipos de arquivo
+
+### 5. Geração e Download
+- Processo de geração com feedback visual
+- Preview das artes geradas
+- Download individual ou em lote
+- Histórico de gerações
 
 ## Estrutura do Projeto
 
