@@ -1,272 +1,124 @@
 # Gerador de Artes
 
-Este é um projeto Node.js que automatiza a geração de artes gráficas para carrosséis de posts em redes sociais usando Puppeteer. O projeto agora inclui uma **interface web moderna e intuitiva** que permite criar sequências de artes personalizadas de forma visual e fácil, onde cada template representa uma página diferente do carrossel, cada uma com seu próprio layout e estilo.
+Este projeto Node.js automatiza a criação de artes jornalísticas para redes sociais a partir de templates HTML/CSS e dados estruturados. Ele disponibiliza uma interface web responsiva para operação por equipes de conteúdo e uma API/CLI pensada para integrações automáticas.
 
-## 🚀 Nova Interface Web
+## Visão geral da arquitetura
 
-O projeto agora conta com uma interface web completa que permite:
+O fluxo de geração é composto pelos seguintes componentes principais:
 
-- **Seleção Visual de Templates**: Escolha entre diferentes estilos de templates com preview
-- **Configuração Intuitiva**: Formulários dinâmicos que se adaptam ao template selecionado
-- **Upload de Arquivos**: Interface drag-and-drop para imagens e logos
-- **Geração Automática**: Processo simplificado de geração das artes
-- **Download Direto**: Baixe as artes geradas diretamente da interface
+| Componente | Função | Arquivo de referência |
+|------------|--------|-----------------------|
+| Servidor Express | Expõe a interface web, API REST e rotinas de upload e geração. | [`server.js`](server.js) |
+| Interface Web | Consome a API para capturar dados de notícias e acionar a geração das artes. | [`public/index.html`](public/index.html), [`public/script.js`](public/script.js), [`public/styles.css`](public/styles.css) |
+| Motor de renderização | Lê `input/data.json`, aplica os valores nos templates e exporta PNGs via Puppeteer. | [`generate.js`](generate.js) |
+| Templates | Conjunto de HTML/CSS parametrizados por IDs para cada página/formato disponível. | [`templates/`](templates) |
+| Utilitários de implantação | Automatizam criação de `config.js`, pastas de saída e script de inicialização. | [`deploy.js`](deploy.js), [`config.example.js`](config.example.js) |
 
-## 🎯 Como Usar a Interface
+Os endpoints expostos incluem listagem de templates, preview de HTML/CSS, upload de ativos, extração de metadados de notícias (via Axios + Cheerio) e disparo da geração de artes.【F:server.js†L1-L196】
 
-1. **Inicie o servidor**:
+## Pré-requisitos
+
+- Node.js 18 ou superior (recomendado) e npm.
+- Navegador moderno para utilizar a interface web.
+- Pacotes do sistema necessários pelo Puppeteer (Chromium headless). Em servidores Linux, siga os requisitos listados na [documentação oficial](https://pptr.dev/troubleshooting#chrome-gets-downloaded) antes de executar `npm install`.
+
+## Configuração inicial
+
+1. Instale dependências:
    ```bash
-   npm start
+   npm install
    ```
+2. (Opcional) Execute o assistente de implantação para gerar `config.js` e `start.sh` customizados:
+   ```bash
+   npm run deploy
+   ```
+   Responda às perguntas sobre porta e diretórios. O script cria `start.sh` (Linux/macOS) com as variáveis de ambiente adequadas e garante a existência da pasta de saída.【F:deploy.js†L1-L83】
+3. Se preferir configurar manualmente, copie [`config.example.js`](config.example.js) para `config.js` e ajuste as propriedades `port`, `outputDir` e `publicOutputDir`. Você também pode definir `PORT`, `OUTPUT_DIR` e `PUBLIC_OUTPUT_DIR` diretamente no ambiente.【F:config.example.js†L1-L21】
 
-2. **Acesse a interface**:
-   Abra seu navegador em `http://localhost:3000`
+## Executando em desenvolvimento
 
-3. **Siga os passos**:
-   - Escolha um template
-   - Selecione as páginas desejadas
-   - Configure o conteúdo
-   - Faça upload dos arquivos
-   - Gere suas artes!
+- Interface web + API:
+  ```bash
+  npm start
+  ```
+  O servidor estará em `http://localhost:3000` (ou na porta definida pelas variáveis/`config.js`). A interface permite informar a URL da notícia, editar título/subtítulo/tag e dispara automaticamente a extração de metadados e geração do material.【F:public/index.html†L1-L120】【F:public/script.js†L1-L199】
 
-## 📋 Funcionalidades da Interface
+- Reload automático durante ajustes no servidor (necessário `nodemon` já presente em `devDependencies`):
+  ```bash
+  npm run dev
+  ```
 
-### 1. Seleção de Templates
-- Preview visual de cada template
-- Descrição das características
-- Informação sobre páginas disponíveis
+## Gerando artes via CLI/API
 
-### 2. Configuração de Páginas
-- Seleção múltipla de páginas
-- Preview de cada página
-- Descrição do propósito de cada uma
+### Uso pela interface
+1. Clique em um dos formatos disponíveis (Feed, Stories etc.).
+2. Informe a URL da notícia. O front-end solicitará `/api/extract-news` para coletar título, descrição e imagem de destaque da página.【F:public/script.js†L116-L161】【F:server.js†L165-L214】
+3. Ajuste os campos opcionais e confirme. O navegador envia os dados para `/api/generate`, que grava `input/data.json`, executa `generate.js` e retorna os arquivos PNG gerados.【F:server.js†L91-L152】
+4. Faça o download pelo link exibido na notificação.
 
-### 3. Formulários Dinâmicos
-- Campos que se adaptam ao template/página
-- Validação em tempo real
-- Ajuda contextual para cada campo
+### Uso por linha de comando
 
-### 4. Upload de Arquivos
-- Interface drag-and-drop
-- Suporte a múltiplos arquivos
-- Preview dos arquivos enviados
-- Validação de tipos de arquivo
-
-### 5. Geração e Download
-- Processo de geração com feedback visual
-- Preview das artes geradas
-- Download individual ou em lote
-- Histórico de gerações
-
-## Estrutura do Projeto
-
-```
-.
-├── input/
-│   ├── data.json    # Arquivo com os dados para geração das artes
-│   └── imagens/     # Pasta para armazenar imagens de fundo e logos
-├── output/          # Pasta onde as artes geradas serão salvas
-├── templates/
-│   ├── TemplateSimples/   # Templates com layouts mais simples
-│   │   ├── pagina1/      # Template para a primeira página
-│   │   │   ├── index.html
-│   │   │   └── styles.css
-│   │   ├── pagina2/      # Template para a segunda página
-│   │   │   ├── index.html
-│   │   │   └── styles.css
-│   │   └── ...
-│   ├── TemplateTopicos/  # Templates com layouts mais elaborados
-│   │   ├── pagina1/      # Template para a primeira página
-│   │   │   ├── index.html
-│   │   │   └── styles.css
-│   │   ├── pagina2/      # Template para a segunda página
-│   │   │   ├── index.html
-│   │   │   └── styles.css
-│   │   └── ...
-│   └── TemplateAGazeta/  # Templates com estilo da A Gazeta
-│       ├── pagina1/      # Template para a primeira página
-│       │   ├── index.html
-│       │   └── styles.css
-│       ├── pagina2/      # Template para a segunda página
-│       │   ├── index.html
-│       │   └── styles.css
-│       └── ...
-├── generate.js      # Script principal de geração
-└── package.json     # Dependências do projeto
-```
-
-## Requisitos
-
-- Node.js
-- NPM (Node Package Manager)
-
-## Instalação
-
-1. Clone o repositório
-2. Instale as dependências:
-```bash
-npm install
-```
-
-## Como Usar
-
-1. Prepare seu arquivo `input/data.json` com os dados das artes no seguinte formato:
+Prepare `input/data.json` com um array de objetos contendo os campos esperados por `generate.js`:
 ```json
 [
   {
-    "template": "TemplateAGazeta",
+    "template": "TemplateAGazetaStories",
     "page": "pagina1",
-    "h1": "Título da Primeira Página",
-    "h2": "Subtítulo da Primeira Página",
-    "bg": "background1",
-    "logo": "logo1"
-  },
-  {
-    "template": "TemplateAGazeta",
-    "page": "pagina2",
-    "text": "Texto informativo que aparecerá na faixa inferior",
-    "bg": "background2",
-    "logo": "logo2"
+    "h1": "Título principal",
+    "h2": "Subtítulo opcional",
+    "text": null,
+    "tag": "Categoria",
+    "bg": "https://exemplo.com/imagem.jpg",
+    "logo": "nome_do_arquivo_sem_extensao"
   }
 ]
 ```
-
-2. Coloque suas imagens na pasta `input/`:
-   - Imagens de fundo: `input/nome-da-imagem-de-fundo.png`
-   - Logos: `input/nome-do-logo.png`
-
-3. Execute o script:
+Depois execute:
 ```bash
-node generate.js
+npm run generate
 ```
+O script valida a presença do template, injeta os valores nos elementos com IDs correspondentes e exporta `arte_<template>_<pagina>_<n>.png` para a pasta configurada (por padrão `./output`). Ele aguarda explicitamente o carregamento das imagens para evitar artefatos parciais.【F:generate.js†L1-L111】【F:generate.js†L112-L155】
 
-4. As artes geradas serão salvas na pasta `output/` com o nome `arte_TemplateAGazeta_pagina1_1.png`, `arte_TemplateAGazeta_pagina2_1.png`, etc., representando cada página do carrossel.
-
-## Templates Disponíveis
-
-O projeto suporta três tipos de templates, cada um com suas próprias variações de página:
-
-### TemplateSimples
-Templates com layouts mais diretos e minimalistas.
-
-#### Página 1 (pagina1)
-- Layout padrão com título e subtítulo centralizados
-- Elementos:
-  - Título principal (h1)
-  - Subtítulo (h2)
-  - Logo centralizado
-  - Imagem de fundo
-
-#### Página 2 (pagina2)
-- Layout informativo com faixa inferior
-- Elementos:
-  - Faixa inferior com texto informativo
-  - Logo posicionado no canto inferior direito
-  - Imagem de fundo
-- Ideal para conteúdo informativo e explicativo
-
-### TemplateTopicos
-Templates com layouts mais elaborados e focados em tópicos.
-
-#### Página 1 (pagina1)
-- Layout com card verde e seta indicativa
-- Elementos:
-  - Card verde com título
-  - Seta indicativa
-  - Imagem inferior com handle
-- Ideal para introdução de tópicos
-
-#### Página 2 (pagina2)
-- Layout informativo com faixa inferior
-- Elementos:
-  - Faixa inferior com texto informativo
-  - Logo posicionado no canto inferior direito
-  - Imagem de fundo
-- Ideal para conteúdo informativo e explicativo
-
-### TemplateAGazeta
-Templates com estilo da A Gazeta.
-
-#### Página 1 (pagina1)
-- Layout com estilo jornalístico
-- Elementos:
-  - Título principal (h1)
-  - Subtítulo (h2)
-  - Logo posicionado
-  - Imagem de fundo
-- Ideal para notícias e reportagens
-
-#### Página 2 (pagina2)
-- Layout com estilo jornalístico
-- Elementos:
-  - Texto informativo
-  - Logo posicionado
-  - Imagem de fundo
-- Ideal para continuação de notícias e reportagens
-
-## Gerando o data.json com GPT
-
-Para gerar o arquivo data.json usando GPT, use o seguinte prompt:
+## Estrutura de diretórios
 
 ```
-Preciso que você gere um arquivo `data.json` para um gerador de artes para carrosséis de posts em redes sociais.  
-O arquivo deve conter um array de objetos, onde cada objeto representa uma página diferente do carrossel.  
-Cada objeto deve seguir a seguinte estrutura:
-
-{
-  "template": "TemplateAGazeta", // "TemplateTopicos", "TemplateSimples" ou "TemplateAGazeta" - indica o tipo de template
-  "page": "pagina1", // "pagina1", "pagina2", "pagina3" ou "pagina4" - indica qual página do carrossel será gerada
-  "h1": "Título da Página", // texto do título principal (apenas para pagina1)
-  "h2": "Subtítulo da Página", // texto do subtítulo (apenas para pagina1)
-  "text": "Texto informativo", // texto para a faixa inferior (pagina2) ou coluna de texto (pagina3 e pagina4)
-  "bg": link direto de imagem (terminando com .jpg ou .png, sem redirecionamento ou página de visualização, de fontes como Pixabay, Pexels, FreeImages)
-  "logo": "nome_do_logo" // nome do arquivo do logo (sem extensão)
-}
-
-Importante:
-    Os links de imagem no campo "bg" devem ser diretos e funcionais (terminando com .jpg ou .png) para que possam ser usados em CSS como background-image.
-    Não use links de páginas de imagem ou redirecionamentos.
-    O conteúdo deve seguir um tema, com narrativa coesa e textos curtos, impactantes e em português.
-
-Regras importantes:
-
-1. O campo "template" deve ser "TemplateTopicos", "TemplateSimples" ou "TemplateAGazeta".
-2. O campo "page" deve ser "pagina1", "pagina2", "pagina3" ou "pagina4".
-3. Para pagina1:
-   - Incluir h1 e h2
-   - Não incluir o campo text
-4. Para pagina2:
-   - Incluir apenas o campo text
-   - Não incluir os campos h1 e h2
-5. Para pagina3:
-   - Incluir apenas o campo text
-   - Não incluir os campos h1 e h2
-   - O texto será exibido na coluna da esquerda com formatação justificada
-6. Para pagina4:
-   - Incluir apenas o campo text
-   - Não incluir os campos h1 e h2
-   - O texto será exibido na coluna da direita com formatação justificada
-7. O campo "bg" deve conter um link direto para uma imagem gratuita e relevante ao conteúdo, preferencialmente de fontes como Unsplash ou Pexels.
-8. O campo "logo" deve conter apenas o nome de um arquivo (sem extensão), que está localizado na pasta input/
-9. Os textos devem ser em português, curtos, impactantes e adequados para redes sociais.
-10. O conteúdo deve seguir uma sequência lógica e narrativa coesa entre as páginas.
-11. Gere exatamente 5 objetos diferentes no array.
-
-Tema da postagem: [INSIRA O TEMA AQUI]
+.
+├── public/                 # Front-end estático servido pelo Express
+├── templates/              # Templates organizados por formato/página
+├── input/
+│   └── data.json           # Dados usados na geração atual
+├── output/                 # PNGs gerados (criada automaticamente)
+├── server.js               # API HTTP + orquestração de geração
+├── generate.js             # Renderização headless com Puppeteer
+├── deploy.js               # Assistente de configuração para servidores
+└── config.example.js       # Modelo de configuração para ambientes
 ```
 
-## Funcionalidades
+## Mantendo e evoluindo o projeto
 
-- Geração automática de artes para carrosséis de posts
-- Suporte a múltiplos tipos de templates:
-  - TemplateSimples: Layouts mais diretos e minimalistas
-  - TemplateTopicos: Layouts mais elaborados e focados em tópicos
-  - TemplateAGazeta: Layouts com estilo jornalístico
-- Suporte a múltiplas artes em uma única execução
-- Personalização de título, subtítulo, texto informativo, imagem de fundo e logo para cada página
-- Suporte a imagens locais e URLs
-- Dimensões padrão de 1080x1350 pixels
+### Atualização de dependências
+- Use `npm outdated` para inspecionar novas versões.
+- Teste localmente com `npm install <pacote>@latest` e valide geração web/CLI antes de atualizar o `package-lock.json`.
+- Puppeteer acompanha uma versão específica do Chromium. Ao atualizar, revise requisitos de sistema em servidores de produção.
 
-## Dependências
+### Criação ou ajuste de templates
+1. Crie uma pasta em `templates/NomeDoTemplate/paginaX/` contendo `index.html` e `styles.css`.
+2. Garanta que os elementos a serem preenchidos programaticamente tenham IDs (`title`, `subtitle`, `textBody`, `bg`, `logo`, `tag`, etc.). O `generate.js` manipula esses IDs ao executar `page.evaluate`.
+3. Se um formato exigir dimensões diferentes, adicione-as ao objeto `templateDimensions` em `generate.js`.
+4. Atualize `getTemplateDescription` em `server.js` e, se desejado, ajuste a interface em `public/index.html` para exibir o novo template.
 
-- puppeteer: ^24.8.2 
+### Monitoramento e logs
+- `generate.js` registra no console o progresso de cada arte e falhas de carregamento de imagens. Em produção, execute o servidor com um gerenciador de processos (PM2, systemd) para persistir logs e reiniciar automaticamente.
+- As rotas Express retornam mensagens de erro detalhadas em JSON; ao integrar via API, trate o campo `error` para exibir feedback amigável ao usuário.【F:server.js†L91-L214】
+
+### Limpeza e armazenamento
+- Os arquivos gerados permanecem na pasta `output`. Agende rotinas (cron, scripts PowerShell) para arquivar ou limpar periodicamente conforme a política da equipe.
+- A API `/api/generated-files` lista os PNGs existentes, útil para dashboards ou integrações externas.【F:server.js†L139-L158】
+
+## Implantação
+
+Consulte [`DEPLOY.md`](DEPLOY.md) para instruções detalhadas sobre servidores Linux/Windows, configuração de proxy reverso e troubleshooting. Em ambientes containerizados, exponha `PORT` e monte volumes para `input/` e `output/` para preservar arquivos entre reinicializações.
+
+---
+
+Sinta-se à vontade para adaptar o projeto às necessidades da redação. Mantenha `input/data.json` versionado apenas se contiver exemplos genéricos; para dados sensíveis, utilize armazenamento externo ou automatize a geração de JSON via integrações.
