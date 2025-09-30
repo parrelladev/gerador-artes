@@ -122,6 +122,36 @@ app.post('/api/generate', (req, res) => {
       return res.status(400).json({ error: 'Payload inválido: "artes" deve ser um array com ao menos um item.' });
     }
 
+    const validationErrors = [];
+
+    artes.forEach((arte, index) => {
+      const position = index + 1;
+
+      if (!arte || typeof arte !== 'object') {
+        validationErrors.push(`Arte ${position}: item inválido.`);
+        return;
+      }
+
+      if (typeof arte.bg !== 'string' || !arte.bg.trim().length) {
+        validationErrors.push(`Arte ${position}: o campo "bg" é obrigatório e deve ser uma string não vazia.`);
+      } else {
+        arte.bg = arte.bg.trim();
+      }
+
+      if (typeof arte.logo !== 'string' || !arte.logo.trim().length) {
+        validationErrors.push(`Arte ${position}: o campo "logo" é obrigatório e deve ser uma string não vazia.`);
+      } else {
+        arte.logo = arte.logo.trim();
+      }
+    });
+
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        error: 'Dados inválidos para geração de artes.',
+        details: validationErrors
+      });
+    }
+
     if (isGenerating) {
       return res.status(409).json({ error: 'Já existe uma geração em andamento. Aguarde a conclusão antes de iniciar outra.' });
     }

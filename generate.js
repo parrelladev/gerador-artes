@@ -76,15 +76,25 @@ async function waitForImages(page) {
       // Navega para o template
       await page.goto(templateURL, { waitUntil: 'networkidle0' });
 
-      const bgPath = bg.startsWith('http') ? bg : 'file://' + path.resolve('./input/' + bg + '.png');
-      const logoPath = logo.startsWith('http') ? logo : 'file://' + path.resolve('./input/' + logo + '.png');
+      if (typeof bg !== 'string' || !bg.trim().length) {
+        throw new Error('Parâmetro "bg" é obrigatório e deve ser uma string não vazia.');
+      }
+      if (typeof logo !== 'string' || !logo.trim().length) {
+        throw new Error('Parâmetro "logo" é obrigatório e deve ser uma string não vazia.');
+      }
+
+      const normalizedBg = bg.trim();
+      const normalizedLogo = logo.trim();
+
+      const bgPath = normalizedBg.startsWith('http') ? normalizedBg : 'file://' + path.resolve('./input/' + normalizedBg + '.png');
+      const logoPath = normalizedLogo.startsWith('http') ? normalizedLogo : 'file://' + path.resolve('./input/' + normalizedLogo + '.png');
 
       // Verifica se os arquivos de imagem existem
-      if (!bg.startsWith('http') && !fs.existsSync('./input/' + bg + '.png')) {
-        throw new Error(`Arquivo de background não encontrado: ${bg}.png`);
+      if (!normalizedBg.startsWith('http') && !fs.existsSync('./input/' + normalizedBg + '.png')) {
+        throw new Error(`Arquivo de background não encontrado: ${normalizedBg}.png`);
       }
-      if (!logo.startsWith('http') && !fs.existsSync('./input/' + logo + '.png')) {
-        throw new Error(`Arquivo de logo não encontrado: ${logo}.png`);
+      if (!normalizedLogo.startsWith('http') && !fs.existsSync('./input/' + normalizedLogo + '.png')) {
+        throw new Error(`Arquivo de logo não encontrado: ${normalizedLogo}.png`);
       }
 
       // Preenche os elementos de acordo com o template

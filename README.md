@@ -53,7 +53,7 @@ Os endpoints expostos incluem listagem de templates, preview de HTML/CSS, upload
 ### Uso pela interface
 1. Clique em um dos formatos disponíveis (Feed, Stories etc.).
 2. Informe a URL da notícia. O front-end solicitará `/api/extract-news` para coletar título, descrição e imagem de destaque da página.【F:public/script.js†L116-L161】【F:server.js†L165-L214】
-3. Ajuste os campos opcionais e confirme. O navegador envia os dados para `/api/generate`, que grava `input/data.json`, executa `generate.js` e retorna os arquivos PNG gerados.【F:server.js†L91-L152】
+3. Ajuste os campos opcionais e confirme. O navegador envia os dados para `/api/generate`, que valida a presença de `bg` e `logo`, grava `input/data.json`, executa `generate.js` e retorna os arquivos PNG gerados. Em caso de erro de validação a API responde com HTTP 400 e detalhes dos campos ausentes.【F:server.js†L91-L170】
 4. Faça o download pelo link exibido na notificação.
 
 ### Uso por linha de comando
@@ -68,8 +68,8 @@ Prepare `input/data.json` com um array de objetos contendo os campos esperados p
     "h2": "Subtítulo opcional",
     "text": null,
     "tag": "Categoria",
-    "bg": "https://exemplo.com/imagem.jpg",
-    "logo": "nome_do_arquivo_sem_extensao"
+    "bg": "https://exemplo.com/imagem.jpg", // obrigatório, URL ou nome de arquivo presente em input/
+    "logo": "nome_do_arquivo_sem_extensao"   // obrigatório, URL ou nome de arquivo presente em input/
   }
 ]
 ```
@@ -77,7 +77,7 @@ Depois execute:
 ```bash
 npm run generate
 ```
-O script valida a presença do template, injeta os valores nos elementos com IDs correspondentes e exporta `arte_<template>_<pagina>_<n>.png` para a pasta configurada (por padrão `./output`). Ele aguarda explicitamente o carregamento das imagens para evitar artefatos parciais.【F:generate.js†L1-L111】【F:generate.js†L112-L155】
+O script valida a presença do template, certifica-se de que `bg` e `logo` são strings não vazias (evitando erros ao montar os caminhos das imagens), injeta os valores nos elementos com IDs correspondentes e exporta `arte_<template>_<pagina>_<n>.png` para a pasta configurada (por padrão `./output`). Ele aguarda explicitamente o carregamento das imagens para evitar artefatos parciais.【F:generate.js†L1-L118】【F:generate.js†L119-L162】
 
 ## Estrutura de diretórios
 
