@@ -41,9 +41,11 @@ async function waitForImages(page) {
   });
 }
 
+
 (async () => {
   const data = JSON.parse(fs.readFileSync('./input/data.json', 'utf-8'));
   const outputDir = process.env.OUTPUT_DIR || './output';
+  const processedFiles = [];
 
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
@@ -129,8 +131,10 @@ async function waitForImages(page) {
       await waitForImages(page);
       console.log('✅ Imagens carregadas com sucesso');
 
-      const outputFilePath = path.join(outputDir, `arte_${template}_${pageName}_${i + 1}.png`);
+      var fileName = `arte_${template}_${pageName}_${i + 1}.png`
+      const outputFilePath = path.join(outputDir, fileName);
       await page.screenshot({ path: outputFilePath });
+      processedFiles.push(fileName);
       console.log(`✅ Imagem salva: ${outputFilePath}`);
 
     } catch (error) {
@@ -140,4 +144,5 @@ async function waitForImages(page) {
 
   await browser.close();
   console.log('\n✨ Processo finalizado!');
+  console.log(JSON.stringify(processedFiles));
 })();

@@ -147,15 +147,29 @@ app.post('/api/generate', (req, res) => {
 
       console.log(`Saída do generate.js: ${stdout}`);
 
-      // Lista os arquivos gerados
-      const generatedFiles = fs.existsSync(OUTPUT_DIR)
-        ? fs.readdirSync(OUTPUT_DIR).filter(file => file.endsWith('.png'))
-        : [];
+      let generatedFiles = [];
+      try {
+        const lines = stdout.trim().split(/\r?\n/).filter(Boolean);
+        const lastLine = lines[lines.length - 1] || '[]';
+        const parsed = JSON.parse(lastLine);
+
+        if (!Array.isArray(parsed)) {
+          throw new Error('Formato inesperado de saída: esperado array de arquivos.');
+        }
+
+        generatedFiles = parsed;
+      } catch (parseError) {
+        console.error('Erro ao interpretar saída do generate.js:', parseError);
+        return res.status(500).json({
+          error: 'Falha ao processar resposta da geração de artes',
+          details: parseError.message,
+          output: stdout
+        });
+      }
 
       res.json({
         message: 'Artes geradas com sucesso',
         files: generatedFiles,
-        output: stdout,
         downloadPath: PUBLIC_OUTPUT_DIR
       });
     });
