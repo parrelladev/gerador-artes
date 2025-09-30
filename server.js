@@ -13,6 +13,9 @@ const PORT = process.env.PORT || 3000;
 const OUTPUT_DIR = process.env.OUTPUT_DIR || './output';
 const PUBLIC_OUTPUT_DIR = process.env.PUBLIC_OUTPUT_DIR || '/output';
 
+// Estado de geração para evitar execuções concorrentes do Puppeteer
+let isGenerating = false;
+
 // Middleware
 app.use(express.json());
 app.use(express.static('public'));
@@ -114,37 +117,64 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 app.post('/api/generate', (req, res) => {
   try {
     const { artes } = req.body;
-    
+
+    if (!Array.isArray(artes) || artes.length === 0) {
+      return res.status(400).json({ error: 'Payload inválido: "artes" deve ser um array com ao menos um item.' });
+    }
+
+    if (isGenerating) {
+      return res.status(409).json({ error: 'Já existe uma geração em andamento. Aguarde a conclusão antes de iniciar outra.' });
+    }
+
     // Salva o data.json
     const dataPath = './input/data.json';
+    isGenerating = true;
+
     fs.writeFileSync(dataPath, JSON.stringify(artes, null, 2));
-    
+
     // Executa o generate.js
     exec('node generate.js', (error, stdout, stderr) => {
+      isGenerating = false;
+
       if (error) {
         console.error(`Erro ao executar generate.js: ${error.message}`);
         return res.status(500).json({ error: 'Erro ao gerar artes', details: error.message });
       }
-      
+
       if (stderr) {
         console.error(`Stderr: ${stderr}`);
       }
-      
+
       console.log(`Saída do generate.js: ${stdout}`);
-      
-      // Lista os arquivos gerados
-      const generatedFiles = fs.existsSync(OUTPUT_DIR) 
-        ? fs.readdirSync(OUTPUT_DIR).filter(file => file.endsWith('.png'))
-        : [];
-      
+
+      let generatedFiles = [];
+      try {
+        const lines = stdout.trim().split(/\r?\n/).filter(Boolean);
+        const lastLine = lines[lines.length - 1] || '[]';
+        const parsed = JSON.parse(lastLine);
+
+        if (!Array.isArray(parsed)) {
+          throw new Error('Formato inesperado de saída: esperado array de arquivos.');
+        }
+
+        generatedFiles = parsed;
+      } catch (parseError) {
+        console.error('Erro ao interpretar saída do generate.js:', parseError);
+        return res.status(500).json({
+          error: 'Falha ao processar resposta da geração de artes',
+          details: parseError.message,
+          output: stdout
+        });
+      }
+
       res.json({
         message: 'Artes geradas com sucesso',
         files: generatedFiles,
-        output: stdout,
         downloadPath: PUBLIC_OUTPUT_DIR
       });
     });
   } catch (error) {
+    isGenerating = false;
     res.status(500).json({ error: error.message });
   }
 });
