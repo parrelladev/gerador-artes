@@ -131,9 +131,10 @@ async function waitForImages(page) {
       await waitForImages(page);
       console.log('✅ Imagens carregadas com sucesso');
 
-      const outputFilePath = path.join(outputDir, `arte_${template}_${pageName}_${i + 1}.png`);
+      var fileName = `arte_${template}_${pageName}_${i + 1}.png`
+      const outputFilePath = path.join(outputDir, fileName);
       await page.screenshot({ path: outputFilePath });
-      processedFiles.push(outputFilePath);
+      processedFiles.push(fileName);
       console.log(`✅ Imagem salva: ${outputFilePath}`);
 
     } catch (error) {
