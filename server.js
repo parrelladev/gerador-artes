@@ -277,10 +277,21 @@ app.post('/api/extract-news', async (req, res) => {
 function getTemplateDescription(templateName) {
   const descriptions = {
     'TemplateAGazeta': 'Estilo jornalístico para posts do Instagram (1080x1350)',
-    'TemplateAGazetaStories': 'Design otimizado para Stories do Instagram (1080x1920)',
     'TemplateAGazetaFeed': 'Layout quadrado para feed do Instagram (1080x1080)',
     'TemplateSimples': 'Layouts minimalistas e diretos, perfeitos para conteúdo clean',
-    'TemplateTopicos': 'Designs elaborados focados em tópicos e listas'
+    'TemplateTopicos': 'Designs elaborados focados em tópicos e listas',
+    'TemplateStoriesVertFotoAcimaAzul': 'Stories vertical com foto acima e elementos em azul, ideal para manchetes gerais.',
+    'TemplateStoriesVertFotoLateralAmarelo': 'Stories vertical com foto lateral e detalhes em amarelo para reforçar chamadas.',
+    'TemplateStoriesVertConteudoCentralVerde': 'Stories vertical com texto centralizado e destaques em verde para pautas equilibradas.',
+    'TemplateStoriesVertConteudoInferiorRoxo': 'Stories vertical com conteúdo em destaque na parte inferior e identidade roxa.',
+    'TemplateStoriesHorizFotoLateralAzul': 'Stories com composição horizontal, foto lateral e acentos em azul.',
+    'TemplateStoriesHorizFotoAcimaLaranja': 'Stories horizontal com foto superior e destaques em laranja.',
+    'TemplateStoriesHorizConteudoCentralVermelho': 'Stories horizontal com conteúdo centralizado e tom vermelho marcante.',
+    'TemplateStoriesHorizConteudoDiagonalRoxo': 'Stories horizontal com elementos diagonais e paleta roxa.',
+    'TemplateStoriesEsporteFotoAcimaVerde': 'Stories temático de esportes com foto superior e identidade verde vibrante.',
+    'TemplateStoriesUrgenteConteudoDestaqueVermelho': 'Stories para notícias urgentes com destaque central em vermelho.',
+    'TemplateStoriesEleicoesConteudoCentralAzul': 'Stories específico para eleições com foco central e paleta azul.',
+    'TemplateStoriesCulturaFotoLateralRoxo': 'Stories temático de cultura com foto lateral e detalhes em roxo.'
   };
   return descriptions[templateName] || 'Template personalizado';
 }
