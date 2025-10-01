@@ -1,0 +1,99 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #2b0404;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#art {
+  position: relative;
+  width: 1080px;
+  height: 1920px;
+  background: #2b0404;
+  overflow: hidden;
+  color: #ffe3e3;
+}
+
+#bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  filter: saturate(1.2);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(43, 4, 4, 1) 0%, rgba(43, 4, 4, 0.4) 45%, rgba(43, 4, 4, 0.1) 100%);
+  z-index: 2;
+}
+
+#art::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle at 10% 90%, rgba(255, 77, 77, 0.5), transparent 70%);
+  z-index: 0;
+}
+
+#logo {
+  position: absolute;
+  top: 90px;
+  left: 90px;
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  z-index: 4;
+}
+
+.content {
+  position: absolute;
+  top: 280px;
+  left: 90px;
+  width: 54%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  z-index: 5;
+}
+
+.tag {
+  padding: 12px 28px;
+  background: #ff2d3b;
+  color: #2b0404;
+  font-weight: 800;
+  font-size: 1.9rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  width: fit-content;
+  border-radius: 999px;
+  box-shadow: 0 12px 28px rgba(255, 45, 59, 0.4);
+}
+
+#title {
+  font-size: 4.4rem;
+  line-height: 1.15;
+  font-weight: 800;
+  text-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.subtitle {
+  font-size: 2.1rem;
+  line-height: 1.5;
+  color: #ffd0d0;
+}

@@ -16,57 +16,24 @@
             <p>Escolha o formato e gere sua arte:</p>
         </header>
 
-        <!-- Templates Grid -->
-        <main class="templates-grid">
-            <!-- Template A Gazeta Carrossel -->
-            <div class="template-card" data-template="TemplateAGazeta">
-                <div class="template-preview">
-                    <img src="previews/carrossel.jpg" alt="Template A Gazeta Carrossel" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="template-placeholder" style="display: none;">
-                        <i class="fa-solid fa-file-image"></i>
-                    </div>
+        <!-- Templates Selector -->
+        <main class="templates-section">
+            <section class="template-selector" aria-labelledby="templateSelectorTitle">
+                <div class="selector-header">
+                    <h2 id="templateSelectorTitle">Templates de Stories</h2>
+                    <p>Filtre por categoria/cor para encontrar a variação ideal.</p>
                 </div>
-                <div class="template-info">
-                    <h3>A Gazeta - Feed</h3>
-                    <p>1080x1350px</p>
-                </div>
-            </div>
-
-            <!-- Template A Gazeta Feed -->
-            <div class="template-card" data-template="TemplateAGazetaFeed">
-                <div class="template-preview">
-                    <img src="previews/feed.jpg" alt="Template A Gazeta Feed" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="template-placeholder" style="display: none;">
-                        <i class="fa-solid fa-image"></i>
-                    </div>
-                </div>
-                <div class="template-info">
-                    <h3>A Gazeta - Feed</h3>
-                    <p>1080x1080px</p>
-                </div>
-            </div>
-
-              <!-- Template A Gazeta Stories -->
-              <div class="template-card" data-template="TemplateAGazetaStories">
-                <div class="template-preview">
-                    <img src="previews/stories.jpg" alt="Template A Gazeta Stories" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="template-placeholder" style="display: none;">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                </div>
-                <div class="template-info">
-                    <h3>A Gazeta - Stories</h3>
-                    <p>1080x1920px</p>
-                </div>
-            </div>
+                <div class="template-tabs" id="categoryTabs" role="tablist" aria-label="Categorias de templates"></div>
+                <div class="templates-list" id="templatesList" aria-live="polite"></div>
+            </section>
         </main>
 
         <!-- Modal -->
-        <div class="modal" id="templateModal">
+        <div class="modal" id="templateModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 id="modalTitle">Gerar Arte</h2>
-                    <button class="close-btn" id="closeModal">
+                    <button class="close-btn" id="closeModal" aria-label="Fechar modal">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>

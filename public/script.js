@@ -1,8 +1,86 @@
-// Estado da aplicação
+const storyTemplates = [
+    {
+        id: 'TemplateStoryFotoAcimaTituloAzul',
+        name: 'Foto acima · Título Azul',
+        category: 'Azul',
+        preview: 'previews/stories/foto-acima-titulo-azul.jpg'
+    },
+    {
+        id: 'TemplateStoryChamadaCentroAzul',
+        name: 'Chamada Central Azul',
+        category: 'Azul',
+        preview: 'previews/stories/chamada-centro-azul.jpg'
+    },
+    {
+        id: 'TemplateStoryLinhaBaseAzul',
+        name: 'Base Geométrica Azul',
+        category: 'Azul',
+        preview: 'previews/stories/linha-base-azul.jpg'
+    },
+    {
+        id: 'TemplateStoryHzAgAmarelo',
+        name: 'Faixas Horizontais Amarelas',
+        category: 'Amarelo',
+        preview: 'previews/stories/hz-ag-amarelo.jpg'
+    },
+    {
+        id: 'TemplateStoryCardInformativoAmarelo',
+        name: 'Card Informativo Amarelo',
+        category: 'Amarelo',
+        preview: 'previews/stories/card-informativo-amarelo.jpg'
+    },
+    {
+        id: 'TemplateStoryTopoFaixaAmarelo',
+        name: 'Faixa Superior Amarela',
+        category: 'Amarelo',
+        preview: 'previews/stories/topo-faixa-amarelo.jpg'
+    },
+    {
+        id: 'TemplateStoryAlertaVerticalVermelho',
+        name: 'Alerta Vertical Vermelho',
+        category: 'Vermelho',
+        preview: 'previews/stories/alerta-vertical-vermelho.jpg'
+    },
+    {
+        id: 'TemplateStoryFotoLateralVermelho',
+        name: 'Foto Lateral Vermelha',
+        category: 'Vermelho',
+        preview: 'previews/stories/foto-lateral-vermelho.jpg'
+    },
+    {
+        id: 'TemplateStoryHeadlineCentroVermelho',
+        name: 'Headline Central Vermelha',
+        category: 'Vermelho',
+        preview: 'previews/stories/headline-centro-vermelho.jpg'
+    },
+    {
+        id: 'TemplateStoryDiagonalVerde',
+        name: 'Diagonal Verde',
+        category: 'Verde',
+        preview: 'previews/stories/diagonal-verde.jpg'
+    },
+    {
+        id: 'TemplateStoryTagCircularVerde',
+        name: 'Tag Circular Verde',
+        category: 'Verde',
+        preview: 'previews/stories/tag-circular-verde.jpg'
+    },
+    {
+        id: 'TemplateStoryListaPontuadaVerde',
+        name: 'Lista Pontuada Verde',
+        category: 'Verde',
+        preview: 'previews/stories/lista-pontuada-verde.jpg'
+    }
+];
+
+const templateLookup = new Map(storyTemplates.map(template => [template.id, template]));
+
+let activeCategory = 'Todos';
 let currentTemplate = null;
 
 // Elementos DOM
-const templateCards = document.querySelectorAll('.template-card');
+const categoryTabsContainer = document.getElementById('categoryTabs');
+const templatesList = document.getElementById('templatesList');
 const modal = document.getElementById('templateModal');
 const closeModal = document.getElementById('closeModal');
 const cancelBtn = document.getElementById('cancelBtn');
@@ -17,63 +95,201 @@ const modalTitle = document.getElementById('modalTitle');
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
+    renderCategoryTabs();
+    renderTemplateCards();
     setupEventListeners();
 });
 
+function renderCategoryTabs() {
+    if (!categoryTabsContainer) return;
+
+    const categories = ['Todos', ...new Set(storyTemplates.map(template => template.category))];
+    categoryTabsContainer.innerHTML = '';
+
+    categories.forEach(category => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'template-tab';
+        button.dataset.category = category;
+        button.textContent = category;
+        const isActive = category === activeCategory;
+        if (isActive) {
+            button.classList.add('active');
+        }
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        categoryTabsContainer.appendChild(button);
+    });
+}
+
+function renderTemplateCards() {
+    if (!templatesList) return;
+
+    templatesList.innerHTML = '';
+    const filteredTemplates = activeCategory === 'Todos'
+        ? storyTemplates
+        : storyTemplates.filter(template => template.category === activeCategory);
+
+    if (filteredTemplates.length === 0) {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.className = 'no-templates';
+        emptyMessage.textContent = 'Nenhum template encontrado para esta categoria.';
+        templatesList.appendChild(emptyMessage);
+        return;
+    }
+
+    filteredTemplates.forEach(template => {
+        const card = document.createElement('article');
+        card.className = 'template-card';
+        card.dataset.template = template.id;
+        card.dataset.category = template.category;
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `${template.name} (${template.category})`);
+
+        const preview = document.createElement('div');
+        preview.className = 'template-preview';
+
+        const img = document.createElement('img');
+        img.src = template.preview;
+        img.alt = `Pré-visualização do template ${template.name}`;
+
+        const placeholder = document.createElement('div');
+        placeholder.className = 'template-placeholder';
+        placeholder.innerHTML = '<i class="fa-solid fa-image"></i>';
+        placeholder.style.display = 'none';
+
+        img.addEventListener('error', () => {
+            img.style.display = 'none';
+            placeholder.style.display = 'flex';
+        });
+
+        preview.appendChild(img);
+        preview.appendChild(placeholder);
+
+        const info = document.createElement('div');
+        info.className = 'template-info';
+
+        const categoryPill = document.createElement('span');
+        categoryPill.className = 'template-category';
+        categoryPill.textContent = template.category;
+
+        const title = document.createElement('h3');
+        title.textContent = template.name;
+
+        const meta = document.createElement('p');
+        meta.className = 'template-meta';
+        meta.textContent = 'Stories · 1080x1920px';
+
+        info.appendChild(categoryPill);
+        info.appendChild(title);
+        info.appendChild(meta);
+
+        card.appendChild(preview);
+        card.appendChild(info);
+
+        templatesList.appendChild(card);
+    });
+}
+
 // Event Listeners
 function setupEventListeners() {
-    // Clique nos cards de template
-    templateCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const template = card.dataset.template;
-            openModal(template);
+    if (categoryTabsContainer) {
+        categoryTabsContainer.addEventListener('click', handleCategoryClick);
+    }
+
+    if (templatesList) {
+        templatesList.addEventListener('click', handleTemplateSelection);
+        templatesList.addEventListener('keydown', handleTemplateKeyboardSelection);
+    }
+
+    if (closeModal) {
+        closeModal.addEventListener('click', closeModalHandler);
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeModalHandler);
+    }
+
+    if (modal) {
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModalHandler();
+            }
         });
-    });
+    }
 
-    // Fechar modal
-    closeModal.addEventListener('click', closeModalHandler);
-    cancelBtn.addEventListener('click', closeModalHandler);
-    
-    // Clique fora do modal para fechar
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModalHandler();
-        }
-    });
+    if (generateBtn) {
+        generateBtn.addEventListener('click', generateArt);
+    }
 
-    // Gerar arte
-    generateBtn.addEventListener('click', generateArt);
+    if (newsUrl) {
+        newsUrl.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                generateArt();
+            }
+        });
+    }
+}
 
-    // Enter no campo de URL
-    newsUrl.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            generateArt();
-        }
+function handleCategoryClick(event) {
+    const button = event.target.closest('.template-tab');
+    if (!button) return;
+
+    const { category } = button.dataset;
+    if (!category || category === activeCategory) {
+        return;
+    }
+
+    activeCategory = category;
+    updateActiveCategoryTab();
+    renderTemplateCards();
+}
+
+function updateActiveCategoryTab() {
+    if (!categoryTabsContainer) return;
+    const tabs = categoryTabsContainer.querySelectorAll('.template-tab');
+    tabs.forEach(tab => {
+        const isActive = tab.dataset.category === activeCategory;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
+}
+
+function handleTemplateSelection(event) {
+    const card = event.target.closest('.template-card');
+    if (!card) return;
+
+    const template = card.dataset.template;
+    openModal(template);
+}
+
+function handleTemplateKeyboardSelection(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+    }
+
+    const card = event.target.closest('.template-card');
+    if (!card) return;
+
+    event.preventDefault();
+    const template = card.dataset.template;
+    openModal(template);
 }
 
 // Abrir modal
 function openModal(template) {
     currentTemplate = template;
-    
-    // Atualizar título do modal
-    const templateNames = {
-        'TemplateAGazeta': 'Feed',
-        'TemplateAGazetaStories': 'Stories',
-        'TemplateAGazetaFeed': 'Feed',
-        'TemplateSimples': 'Simples',
-        'TemplateTopicos': 'Tópicos',
-        'TemplateCustom': 'Personalizado'
-    };
-    
-    modalTitle.textContent = `Gerar Arte - ${templateNames[template]}`;
-    
+
+    const templateInfo = templateLookup.get(template);
+    const templateName = templateInfo ? templateInfo.name : template;
+    modalTitle.textContent = `Gerar Arte - ${templateName}`;
+
     // Limpar campos
     newsUrl.value = '';
     customTitle.value = '';
     customSubtitle.value = '';
     customTag.value = '';
-    
+
     // Mostrar modal
     modal.classList.add('show');
     newsUrl.focus();
@@ -87,9 +303,14 @@ function closeModalHandler() {
 
 // Gerar arte
 async function generateArt() {
+    if (!currentTemplate) {
+        showToast('Por favor, selecione um template de story', 'error');
+        return;
+    }
+
     const url = newsUrl.value.trim();
     const tag = customTag.value.trim();
-    
+
     if (!url) {
         showToast('Por favor, insira o link da notícia', 'error');
         newsUrl.focus();
@@ -110,21 +331,21 @@ async function generateArt() {
 
     try {
         showLoading();
-        
+
         // Preparar dados
         const artData = {
             template: currentTemplate,
             page: 'pagina1',
             h1: customTitle.value.trim() || null,
             h2: customSubtitle.value.trim() || null,
-            tag: tag, // Tag obrigatória
-            bg: null, // Será preenchido pelo servidor
-            logo: 'logo' // Logo padrão
+            tag: tag,
+            bg: null,
+            logo: 'logo'
         };
 
         // Extrair dados da URL
         const extractedData = await extractNewsData(url);
-        
+
         // Atualizar dados com informações extraídas
         if (extractedData.h1 && !customTitle.value.trim()) {
             artData.h1 = extractedData.h1;
@@ -135,11 +356,9 @@ async function generateArt() {
         if (extractedData.bg) {
             artData.bg = extractedData.bg;
         }
-        // Tag sempre vem do usuário, não da extração automática
 
-        // Gerar arte
         const result = await generateArtwork([artData]);
-        
+
         if (result.success) {
             showToast('Arte gerada com sucesso!', 'success');
             showDownloadLink(result.filename);
@@ -147,7 +366,7 @@ async function generateArt() {
         } else {
             showToast('Erro ao gerar arte: ' + result.error, 'error');
         }
-        
+
     } catch (error) {
         console.error('Erro ao gerar arte:', error);
         showToast('Erro ao gerar arte: ' + error.message, 'error');
@@ -233,18 +452,17 @@ function hideLoading() {
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
-    const icon = type === 'success' ? 'check-circle' : 
+
+    const icon = type === 'success' ? 'check-circle' :
                  type === 'error' ? 'exclamation-circle' : 'info-circle';
-    
+
     toast.innerHTML = `
         <i class="fas fa-${icon}"></i>
         <span>${message}</span>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
-    // Remover após 5 segundos
+
     setTimeout(() => {
         toast.remove();
     }, 5000);
@@ -257,11 +475,9 @@ function showDownloadLink(filename) {
     downloadLink.download = filename;
     downloadLink.className = 'download-link';
     downloadLink.innerHTML = '<i class="fas fa-download"></i> Baixar Arte Gerada';
-    
-    // Adicionar ao container de toast
+
     toastContainer.appendChild(downloadLink);
-    
-    // Remover após 10 segundos
+
     setTimeout(() => {
         downloadLink.remove();
     }, 10000);
@@ -269,8 +485,5 @@ function showDownloadLink(filename) {
 
 // Criar pasta de previews se não existir
 function createPreviewsFolder() {
-    // Esta função pode ser chamada para criar a pasta previews
-    // onde você pode colocar as imagens de preview dos templates
-    console.log('Para adicionar previews dos templates, coloque as imagens na pasta: public/previews/');
-    console.log('Nomes sugeridos: template1.jpg, template2.jpg, template3.jpg, template4.jpg');
+    console.log('Para adicionar previews dos templates, coloque as imagens na pasta: public/previews/stories');
 }
