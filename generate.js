@@ -5,10 +5,21 @@ const puppeteer = require('puppeteer');
 // Configuração de dimensões por template
 const templateDimensions = {
   'TemplateAGazeta': { width: 1080, height: 1350 },
-  'TemplateAGazetaStories': { width: 1080, height: 1920 },
   'TemplateAGazetaFeed': { width: 1080, height: 1080 },
   'TemplateSimples': { width: 1080, height: 1350 },
   'TemplateTopicos': { width: 1080, height: 1350 },
+  'TemplateStoriesVertFotoAcimaAzul': { width: 1080, height: 1920 },
+  'TemplateStoriesVertFotoLateralAmarelo': { width: 1080, height: 1920 },
+  'TemplateStoriesVertConteudoCentralVerde': { width: 1080, height: 1920 },
+  'TemplateStoriesVertConteudoInferiorRoxo': { width: 1080, height: 1920 },
+  'TemplateStoriesHorizFotoLateralAzul': { width: 1080, height: 1920 },
+  'TemplateStoriesHorizFotoAcimaLaranja': { width: 1080, height: 1920 },
+  'TemplateStoriesHorizConteudoCentralVermelho': { width: 1080, height: 1920 },
+  'TemplateStoriesHorizConteudoDiagonalRoxo': { width: 1080, height: 1920 },
+  'TemplateStoriesEsporteFotoAcimaVerde': { width: 1080, height: 1920 },
+  'TemplateStoriesUrgenteConteudoDestaqueVermelho': { width: 1080, height: 1920 },
+  'TemplateStoriesEleicoesConteudoCentralAzul': { width: 1080, height: 1920 },
+  'TemplateStoriesCulturaFotoLateralRoxo': { width: 1080, height: 1920 },
   'default': { width: 1080, height: 1350 }
 };
 

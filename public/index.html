@@ -16,49 +16,15 @@
             <p>Escolha o formato e gere sua arte:</p>
         </header>
 
-        <!-- Templates Grid -->
-        <main class="templates-grid">
-            <!-- Template A Gazeta Carrossel -->
-            <div class="template-card" data-template="TemplateAGazeta">
-                <div class="template-preview">
-                    <img src="previews/carrossel.jpg" alt="Template A Gazeta Carrossel" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="template-placeholder" style="display: none;">
-                        <i class="fa-solid fa-file-image"></i>
-                    </div>
-                </div>
-                <div class="template-info">
-                    <h3>A Gazeta - Feed</h3>
-                    <p>1080x1350px</p>
-                </div>
-            </div>
+        <main class="stories-section">
+            <section class="stories-header">
+                <h2>Biblioteca de Stories</h2>
+                <p>Explore as combinações de layout por agrupamento e selecione a variação que melhor se adapta à sua pauta.</p>
+            </section>
 
-            <!-- Template A Gazeta Feed -->
-            <div class="template-card" data-template="TemplateAGazetaFeed">
-                <div class="template-preview">
-                    <img src="previews/feed.jpg" alt="Template A Gazeta Feed" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="template-placeholder" style="display: none;">
-                        <i class="fa-solid fa-image"></i>
-                    </div>
-                </div>
-                <div class="template-info">
-                    <h3>A Gazeta - Feed</h3>
-                    <p>1080x1080px</p>
-                </div>
-            </div>
+            <nav class="category-tabs" id="storyCategoryTabs" aria-label="Agrupamentos de templates"></nav>
 
-              <!-- Template A Gazeta Stories -->
-              <div class="template-card" data-template="TemplateAGazetaStories">
-                <div class="template-preview">
-                    <img src="previews/stories.jpg" alt="Template A Gazeta Stories" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="template-placeholder" style="display: none;">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                </div>
-                <div class="template-info">
-                    <h3>A Gazeta - Stories</h3>
-                    <p>1080x1920px</p>
-                </div>
-            </div>
+            <section class="templates-grid story-grid" id="storyTemplateGrid" aria-live="polite"></section>
         </main>
 
         <!-- Modal -->

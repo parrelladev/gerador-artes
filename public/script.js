@@ -1,8 +1,103 @@
+// Configurações de templates
+const storyTemplates = [
+    {
+        id: 'TemplateStoriesVertFotoAcimaAzul',
+        name: 'Vertical • Foto acima • Azul',
+        group: 'Gerais — Vertical',
+        slug: 'vert-foto-acima-azul',
+        preview: 'previews/stories/vert-foto-acima-azul.png'
+    },
+    {
+        id: 'TemplateStoriesVertFotoLateralAmarelo',
+        name: 'Vertical • Foto lateral • Amarelo',
+        group: 'Gerais — Vertical',
+        slug: 'vert-foto-lateral-amarelo',
+        preview: 'previews/stories/vert-foto-lateral-amarelo.png'
+    },
+    {
+        id: 'TemplateStoriesVertConteudoCentralVerde',
+        name: 'Vertical • Conteúdo central • Verde',
+        group: 'Gerais — Vertical',
+        slug: 'vert-conteudo-central-verde',
+        preview: 'previews/stories/vert-conteudo-central-verde.png'
+    },
+    {
+        id: 'TemplateStoriesVertConteudoInferiorRoxo',
+        name: 'Vertical • Conteúdo inferior • Roxo',
+        group: 'Gerais — Vertical',
+        slug: 'vert-conteudo-inferior-roxo',
+        preview: 'previews/stories/vert-conteudo-inferior-roxo.png'
+    },
+    {
+        id: 'TemplateStoriesHorizFotoLateralAzul',
+        name: 'Horizontal • Foto lateral • Azul',
+        group: 'Gerais — Horizontal',
+        slug: 'horiz-foto-lateral-azul',
+        preview: 'previews/stories/horiz-foto-lateral-azul.png'
+    },
+    {
+        id: 'TemplateStoriesHorizFotoAcimaLaranja',
+        name: 'Horizontal • Foto acima • Laranja',
+        group: 'Gerais — Horizontal',
+        slug: 'horiz-foto-acima-laranja',
+        preview: 'previews/stories/horiz-foto-acima-laranja.png'
+    },
+    {
+        id: 'TemplateStoriesHorizConteudoCentralVermelho',
+        name: 'Horizontal • Conteúdo central • Vermelho',
+        group: 'Gerais — Horizontal',
+        slug: 'horiz-conteudo-central-vermelho',
+        preview: 'previews/stories/horiz-conteudo-central-vermelho.png'
+    },
+    {
+        id: 'TemplateStoriesHorizConteudoDiagonalRoxo',
+        name: 'Horizontal • Conteúdo diagonal • Roxo',
+        group: 'Gerais — Horizontal',
+        slug: 'horiz-conteudo-diagonal-roxo',
+        preview: 'previews/stories/horiz-conteudo-diagonal-roxo.png'
+    },
+    {
+        id: 'TemplateStoriesEsporteFotoAcimaVerde',
+        name: 'Esporte • Foto acima • Verde',
+        group: 'Específicos',
+        slug: 'esp-esporte-foto-acima-verde',
+        preview: 'previews/stories/esp-esporte-foto-acima-verde.png'
+    },
+    {
+        id: 'TemplateStoriesUrgenteConteudoDestaqueVermelho',
+        name: 'Urgente • Conteúdo destacado • Vermelho',
+        group: 'Específicos',
+        slug: 'esp-urgente-conteudo-destaque-vermelho',
+        preview: 'previews/stories/esp-urgente-conteudo-destaque-vermelho.png'
+    },
+    {
+        id: 'TemplateStoriesEleicoesConteudoCentralAzul',
+        name: 'Eleições • Conteúdo central • Azul',
+        group: 'Específicos',
+        slug: 'esp-eleicoes-conteudo-central-azul',
+        preview: 'previews/stories/esp-eleicoes-conteudo-central-azul.png'
+    },
+    {
+        id: 'TemplateStoriesCulturaFotoLateralRoxo',
+        name: 'Cultura • Foto lateral • Roxo',
+        group: 'Específicos',
+        slug: 'esp-cultura-foto-lateral-roxo',
+        preview: 'previews/stories/esp-cultura-foto-lateral-roxo.png'
+    }
+];
+
+const templateLookup = storyTemplates.reduce((acc, template) => {
+    acc[template.slug] = template;
+    return acc;
+}, {});
+
+const storyGroups = Array.from(new Set(storyTemplates.map(template => template.group)));
+
 // Estado da aplicação
 let currentTemplate = null;
+let activeStoryGroup = storyGroups[0] || null;
 
 // Elementos DOM
-const templateCards = document.querySelectorAll('.template-card');
 const modal = document.getElementById('templateModal');
 const closeModal = document.getElementById('closeModal');
 const cancelBtn = document.getElementById('cancelBtn');
@@ -14,20 +109,72 @@ const customTitle = document.getElementById('customTitle');
 const customSubtitle = document.getElementById('customSubtitle');
 const customTag = document.getElementById('customTag');
 const modalTitle = document.getElementById('modalTitle');
+const storyCategoryTabs = document.getElementById('storyCategoryTabs');
+const storyTemplateGrid = document.getElementById('storyTemplateGrid');
+const fallbackTemplateNames = {
+    'TemplateAGazeta': 'Feed',
+    'TemplateAGazetaFeed': 'Feed',
+    'TemplateSimples': 'Simples',
+    'TemplateTopicos': 'Tópicos',
+    'TemplateCustom': 'Personalizado'
+};
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
+    renderCategoryTabs();
+    renderTemplateCards();
     setupEventListeners();
 });
 
 // Event Listeners
 function setupEventListeners() {
-    // Clique nos cards de template
-    templateCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const template = card.dataset.template;
-            openModal(template);
+    if (storyCategoryTabs) {
+        storyCategoryTabs.addEventListener('click', (event) => {
+            const tab = event.target.closest('[data-group]');
+            if (!tab) {
+                return;
+            }
+
+            const { group } = tab.dataset;
+            if (group && group !== activeStoryGroup) {
+                activeStoryGroup = group;
+                renderCategoryTabs();
+                renderTemplateCards();
+            }
         });
+    }
+
+    if (storyTemplateGrid) {
+        storyTemplateGrid.addEventListener('click', (event) => {
+            const card = event.target.closest('.template-card');
+            if (!card) {
+                return;
+            }
+
+            const { slug, template: templateId } = card.dataset;
+            if (slug && templateLookup[slug]) {
+                openModal(slug);
+                return;
+            }
+
+            if (templateId) {
+                openModal(templateId);
+            }
+        });
+    }
+
+    document.addEventListener('click', (event) => {
+        const card = event.target.closest('.template-card');
+        if (!card || card.closest('#storyTemplateGrid')) {
+            return;
+        }
+
+        const { slug, template } = card.dataset;
+        if (slug && templateLookup[slug]) {
+            openModal(slug);
+        } else if (template) {
+            openModal(template);
+        }
     });
 
     // Fechar modal
@@ -52,22 +199,78 @@ function setupEventListeners() {
     });
 }
 
+function renderCategoryTabs() {
+    if (!storyCategoryTabs) {
+        return;
+    }
+
+    storyCategoryTabs.innerHTML = '';
+
+    storyGroups.forEach(group => {
+        const tabButton = document.createElement('button');
+        tabButton.type = 'button';
+        tabButton.className = `category-tab${group === activeStoryGroup ? ' active' : ''}`;
+        tabButton.dataset.group = group;
+        tabButton.textContent = group;
+        storyCategoryTabs.appendChild(tabButton);
+    });
+}
+
+function renderTemplateCards() {
+    if (!storyTemplateGrid) {
+        return;
+    }
+
+    storyTemplateGrid.innerHTML = '';
+
+    const templatesToRender = activeStoryGroup ?
+        storyTemplates.filter(template => template.group === activeStoryGroup) :
+        storyTemplates;
+
+    templatesToRender.forEach(template => {
+        const card = document.createElement('div');
+        card.className = 'template-card story-card';
+        card.dataset.slug = template.slug;
+        card.dataset.group = template.group;
+        card.dataset.template = template.id;
+
+        card.innerHTML = `
+            <div class="template-preview">
+                <img src="${template.preview}" alt="${template.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="template-placeholder" style="display: none;">
+                    <i class="fa-solid fa-image"></i>
+                </div>
+            </div>
+            <div class="template-info">
+                <span class="template-pill">${template.group}</span>
+                <p class="template-label">${template.name}</p>
+            </div>
+        `;
+
+        storyTemplateGrid.appendChild(card);
+    });
+
+    if (!storyTemplateGrid.children.length) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.textContent = 'Nenhum template disponível para este agrupamento.';
+        storyTemplateGrid.appendChild(emptyState);
+    }
+}
+
 // Abrir modal
-function openModal(template) {
-    currentTemplate = template;
-    
-    // Atualizar título do modal
-    const templateNames = {
-        'TemplateAGazeta': 'Feed',
-        'TemplateAGazetaStories': 'Stories',
-        'TemplateAGazetaFeed': 'Feed',
-        'TemplateSimples': 'Simples',
-        'TemplateTopicos': 'Tópicos',
-        'TemplateCustom': 'Personalizado'
-    };
-    
-    modalTitle.textContent = `Gerar Arte - ${templateNames[template]}`;
-    
+function openModal(templateKey) {
+    const templateData = templateLookup[templateKey];
+
+    if (templateData) {
+        currentTemplate = templateData.id;
+        modalTitle.textContent = `Gerar Arte - ${templateData.name}`;
+    } else {
+        currentTemplate = templateKey;
+        const displayName = fallbackTemplateNames[templateKey] || templateKey;
+        modalTitle.textContent = `Gerar Arte - ${displayName}`;
+    }
+
     // Limpar campos
     newsUrl.value = '';
     customTitle.value = '';
@@ -89,6 +292,11 @@ function closeModalHandler() {
 async function generateArt() {
     const url = newsUrl.value.trim();
     const tag = customTag.value.trim();
+
+    if (!currentTemplate) {
+        showToast('Escolha um template antes de gerar a arte', 'error');
+        return;
+    }
     
     if (!url) {
         showToast('Por favor, insira o link da notícia', 'error');

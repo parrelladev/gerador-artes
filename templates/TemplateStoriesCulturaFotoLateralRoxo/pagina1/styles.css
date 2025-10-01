@@ -1,0 +1,158 @@
+
+:root {
+  --accent-color: #A855F7;
+  --accent-color-strong: #6B21A8;
+  --overlay-direction: to right;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 1080px;
+  height: 1920px;
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  color: #F8FAFC;
+  background: #0F172A;
+}
+
+.story-canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 48px;
+  background: #111827;
+}
+
+.story-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.65);
+  z-index: 0;
+}
+
+.story-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 96px 104px;
+  z-index: 1;
+  background: linear-gradient(var(--overlay-direction), rgba(15, 23, 42, 0.82) 0%, rgba(15, 23, 42, 0.25) 45%, rgba(15, 23, 42, 0.9) 100%),
+              linear-gradient(135deg, color-mix(in srgb, var(--accent-color) 65%, #0f172a 35%) 0%, color-mix(in srgb, var(--accent-color-strong) 70%, #0f172a 30%) 100%);
+  backdrop-filter: blur(6px);
+}
+
+.story-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.story-logo {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.4));
+}
+
+.story-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  border-radius: 999px;
+  font-size: 1rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid color-mix(in srgb, var(--accent-color) 75%, transparent);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.4);
+}
+
+.story-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 780px;
+}
+
+.story-page.layout-horizontal .story-content {
+  max-width: 860px;
+}
+
+.story-page.layout-horizontal .story-overlay {
+  justify-content: center;
+}
+
+.story-page.layout-especifico .story-overlay {
+  padding-top: 120px;
+  padding-bottom: 120px;
+}
+
+.story-page.layout-especifico .story-content {
+  max-width: 820px;
+}
+
+#title {
+  font-size: 4.6rem;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  text-shadow: 0 18px 38px rgba(0, 0, 0, 0.55);
+}
+
+#subtitle {
+  font-size: 1.7rem;
+  line-height: 1.5;
+  color: rgba(241, 245, 249, 0.9);
+  font-weight: 500;
+  max-width: 720px;
+}
+
+.story-page.layout-horizontal #title {
+  font-size: 4.2rem;
+}
+
+.story-page.layout-vertical .story-content {
+  justify-content: flex-end;
+}
+
+.story-page.layout-vertical #title {
+  font-size: 4.4rem;
+}
+
+.story-page.layout-vertical .story-tag {
+  align-self: flex-end;
+}
+
+.story-page.layout-horizontal .story-header {
+  align-items: center;
+}
+
+.story-page.layout-horizontal .story-tag {
+  align-self: center;
+}
+
+.story-page.layout-especifico .story-tag {
+  background: color-mix(in srgb, var(--accent-color) 20%, rgba(15, 23, 42, 0.7));
+}
+
+.story-page.layout-especifico #title {
+  text-transform: uppercase;
+}
+
+.story-page.layout-especifico #subtitle {
+  text-transform: none;
+}
