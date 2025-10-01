@@ -1,88 +1,88 @@
 // Configurações de templates
 const storyTemplates = [
     {
-        id: 'TemplateStoriesVertFotoAcimaAzul',
+        id: 'TemplateStoriesVerticalSuperiorAzul',
         name: 'Vertical • Foto acima • Azul',
         group: 'Gerais — Vertical',
         slug: 'vert-foto-acima-azul',
         preview: 'previews/stories/vert-foto-acima-azul.png'
     },
     {
-        id: 'TemplateStoriesVertFotoLateralAmarelo',
-        name: 'Vertical • Foto lateral • Amarelo',
-        group: 'Gerais — Vertical',
-        slug: 'vert-foto-lateral-amarelo',
-        preview: 'previews/stories/vert-foto-lateral-amarelo.png'
-    },
-    {
-        id: 'TemplateStoriesVertConteudoCentralVerde',
-        name: 'Vertical • Conteúdo central • Verde',
+        id: 'TemplateStoriesVerticalSuperiorBranco',
+        name: 'Vertical • Foto acima • Branco',
         group: 'Gerais — Vertical',
         slug: 'vert-conteudo-central-verde',
         preview: 'previews/stories/vert-conteudo-central-verde.png'
     },
     {
-        id: 'TemplateStoriesVertConteudoInferiorRoxo',
-        name: 'Vertical • Conteúdo inferior • Roxo',
+        id: 'TemplateStoriesVerticalSuperiorPreto',
+        name: 'Vertical • Foto acima • Preto',
         group: 'Gerais — Vertical',
         slug: 'vert-conteudo-inferior-roxo',
         preview: 'previews/stories/vert-conteudo-inferior-roxo.png'
     },
     {
-        id: 'TemplateStoriesHorizFotoLateralAzul',
-        name: 'Horizontal • Foto lateral • Azul',
+        id: 'TemplateStoriesHorizontalSuperiorTituloLinhaFinaBranco',
+        name: 'Horizontal • Foto acima • Título + linha fina • Branco',
         group: 'Gerais — Horizontal',
         slug: 'horiz-foto-lateral-azul',
         preview: 'previews/stories/horiz-foto-lateral-azul.png'
     },
     {
-        id: 'TemplateStoriesHorizFotoAcimaLaranja',
-        name: 'Horizontal • Foto acima • Laranja',
+        id: 'TemplateStoriesHorizontalSuperiorTituloLinhaFinaPreto',
+        name: 'Horizontal • Foto acima • Título + linha fina • Preto',
         group: 'Gerais — Horizontal',
         slug: 'horiz-foto-acima-laranja',
         preview: 'previews/stories/horiz-foto-acima-laranja.png'
     },
     {
-        id: 'TemplateStoriesHorizConteudoCentralVermelho',
-        name: 'Horizontal • Conteúdo central • Vermelho',
+        id: 'TemplateStoriesHorizontalSuperiorTituloLinhaFina',
+        name: 'Horizontal • Foto acima • Título + linha fina',
         group: 'Gerais — Horizontal',
         slug: 'horiz-conteudo-central-vermelho',
         preview: 'previews/stories/horiz-conteudo-central-vermelho.png'
     },
     {
-        id: 'TemplateStoriesHorizConteudoDiagonalRoxo',
-        name: 'Horizontal • Conteúdo diagonal • Roxo',
-        group: 'Gerais — Horizontal',
+        id: 'TemplateStoriesHZAGAmarelo',
+        name: 'HZ AG • Amarelo',
+        group: 'Específicos',
+        slug: 'vert-foto-lateral-amarelo',
+        preview: 'previews/stories/vert-foto-lateral-amarelo.png'
+    },
+    {
+        id: 'TemplateStoriesHZAGRosa',
+        name: 'HZ AG • Rosa',
+        group: 'Específicos',
         slug: 'horiz-conteudo-diagonal-roxo',
         preview: 'previews/stories/horiz-conteudo-diagonal-roxo.png'
     },
     {
-        id: 'TemplateStoriesEsporteFotoAcimaVerde',
-        name: 'Esporte • Foto acima • Verde',
-        group: 'Específicos',
-        slug: 'esp-esporte-foto-acima-verde',
-        preview: 'previews/stories/esp-esporte-foto-acima-verde.png'
-    },
-    {
-        id: 'TemplateStoriesUrgenteConteudoDestaqueVermelho',
-        name: 'Urgente • Conteúdo destacado • Vermelho',
-        group: 'Específicos',
-        slug: 'esp-urgente-conteudo-destaque-vermelho',
-        preview: 'previews/stories/esp-urgente-conteudo-destaque-vermelho.png'
-    },
-    {
-        id: 'TemplateStoriesEleicoesConteudoCentralAzul',
-        name: 'Eleições • Conteúdo central • Azul',
+        id: 'TemplateStoriesBBCComFoto',
+        name: 'BBC • Com foto',
         group: 'Específicos',
         slug: 'esp-eleicoes-conteudo-central-azul',
         preview: 'previews/stories/esp-eleicoes-conteudo-central-azul.png'
     },
     {
-        id: 'TemplateStoriesCulturaFotoLateralRoxo',
-        name: 'Cultura • Foto lateral • Roxo',
+        id: 'TemplateStoriesOpiniaoComFoto',
+        name: 'Opinião • Com foto',
+        group: 'Específicos',
+        slug: 'esp-urgente-conteudo-destaque-vermelho',
+        preview: 'previews/stories/esp-urgente-conteudo-destaque-vermelho.png'
+    },
+    {
+        id: 'TemplateStoriesColunistas',
+        name: 'Colunistas',
         group: 'Específicos',
         slug: 'esp-cultura-foto-lateral-roxo',
         preview: 'previews/stories/esp-cultura-foto-lateral-roxo.png'
+    },
+    {
+        id: 'TemplateStoriesSeCuidaSwipeUpEditorial',
+        name: 'Se Cuida • Swipe Up Editorial',
+        group: 'Específicos',
+        slug: 'esp-esporte-foto-acima-verde',
+        preview: 'previews/stories/esp-esporte-foto-acima-verde.png'
     }
 ];
 

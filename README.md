@@ -62,7 +62,7 @@ Prepare `input/data.json` com um array de objetos contendo os campos esperados p
 ```json
 [
   {
-    "template": "TemplateStoriesVertFotoAcimaAzul",
+    "template": "TemplateStoriesVerticalSuperiorAzul",
     "page": "pagina1",
     "h1": "Título principal",
     "h2": "Subtítulo opcional",

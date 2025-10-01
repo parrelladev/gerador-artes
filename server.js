@@ -280,18 +280,18 @@ function getTemplateDescription(templateName) {
     'TemplateAGazetaFeed': 'Layout quadrado para feed do Instagram (1080x1080)',
     'TemplateSimples': 'Layouts minimalistas e diretos, perfeitos para conteúdo clean',
     'TemplateTopicos': 'Designs elaborados focados em tópicos e listas',
-    'TemplateStoriesVertFotoAcimaAzul': 'Stories vertical com foto acima e elementos em azul, ideal para manchetes gerais.',
-    'TemplateStoriesVertFotoLateralAmarelo': 'Stories vertical com foto lateral e detalhes em amarelo para reforçar chamadas.',
-    'TemplateStoriesVertConteudoCentralVerde': 'Stories vertical com texto centralizado e destaques em verde para pautas equilibradas.',
-    'TemplateStoriesVertConteudoInferiorRoxo': 'Stories vertical com conteúdo em destaque na parte inferior e identidade roxa.',
-    'TemplateStoriesHorizFotoLateralAzul': 'Stories com composição horizontal, foto lateral e acentos em azul.',
-    'TemplateStoriesHorizFotoAcimaLaranja': 'Stories horizontal com foto superior e destaques em laranja.',
-    'TemplateStoriesHorizConteudoCentralVermelho': 'Stories horizontal com conteúdo centralizado e tom vermelho marcante.',
-    'TemplateStoriesHorizConteudoDiagonalRoxo': 'Stories horizontal com elementos diagonais e paleta roxa.',
-    'TemplateStoriesEsporteFotoAcimaVerde': 'Stories temático de esportes com foto superior e identidade verde vibrante.',
-    'TemplateStoriesUrgenteConteudoDestaqueVermelho': 'Stories para notícias urgentes com destaque central em vermelho.',
-    'TemplateStoriesEleicoesConteudoCentralAzul': 'Stories específico para eleições com foco central e paleta azul.',
-    'TemplateStoriesCulturaFotoLateralRoxo': 'Stories temático de cultura com foto lateral e detalhes em roxo.'
+    'TemplateStoriesVerticalSuperiorAzul': 'Stories vertical com foto superior e elementos em azul, ideal para manchetes gerais.',
+    'TemplateStoriesVerticalSuperiorBranco': 'Stories vertical com foto superior e estética clara em branco para chamadas elegantes.',
+    'TemplateStoriesVerticalSuperiorPreto': 'Stories vertical com foto superior e contraste em preto para conteúdos de impacto.',
+    'TemplateStoriesHorizontalSuperiorTituloLinhaFinaBranco': 'Stories horizontal com foto superior, título com linha fina e identidade clara.',
+    'TemplateStoriesHorizontalSuperiorTituloLinhaFinaPreto': 'Stories horizontal com foto superior, título com linha fina e identidade escura.',
+    'TemplateStoriesHorizontalSuperiorTituloLinhaFina': 'Stories horizontal com foto superior e título acompanhado de linha fina em tom neutro.',
+    'TemplateStoriesHZAGAmarelo': 'Stories HZ AG com predominância amarela para comunicações vibrantes.',
+    'TemplateStoriesHZAGRosa': 'Stories HZ AG com acentos em rosa para conteúdos dinâmicos.',
+    'TemplateStoriesBBCComFoto': 'Stories inspirado no estilo BBC com foto de destaque e foco em credibilidade.',
+    'TemplateStoriesOpiniaoComFoto': 'Stories de opinião com foto destacada e espaço para análises editoriais.',
+    'TemplateStoriesColunistas': 'Stories dedicado a colunistas, com layout pensado para assinaturas editoriais.',
+    'TemplateStoriesSeCuidaSwipeUpEditorial': 'Stories Se Cuida com chamada editorial para swipe up.'
   };
   return descriptions[templateName] || 'Template personalizado';
 }
