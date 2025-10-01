@@ -2,17 +2,41 @@ const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
 
+const STORY_TEMPLATE_DIMENSIONS = { width: 1080, height: 1920 };
+
+const storyTemplateIds = new Set([
+  'TemplateAGazetaStories',
+  'TemplateStoryFotoAcimaTituloAzul',
+  'TemplateStoryHzAgAmarelo'
+]);
+
+const templatesDir = path.join(__dirname, 'templates');
+if (fs.existsSync(templatesDir)) {
+  for (const entry of fs.readdirSync(templatesDir, { withFileTypes: true })) {
+    if (entry.isDirectory() && entry.name.startsWith('TemplateStory')) {
+      storyTemplateIds.add(entry.name);
+    }
+  }
+}
+
 // Configuração de dimensões por template
 const templateDimensions = {
   'TemplateAGazeta': { width: 1080, height: 1350 },
-  'TemplateAGazetaStories': { width: 1080, height: 1920 },
   'TemplateAGazetaFeed': { width: 1080, height: 1080 },
   'TemplateSimples': { width: 1080, height: 1350 },
   'TemplateTopicos': { width: 1080, height: 1350 },
+  // Todas as variações de stories compartilham esta dimensão padrão (1080x1920).
+  ...Object.fromEntries([...storyTemplateIds].map(id => [id, STORY_TEMPLATE_DIMENSIONS])),
   'default': { width: 1080, height: 1350 }
 };
 
 function getTemplateDimensions(templateName) {
+  if (
+    storyTemplateIds.has(templateName) ||
+    (typeof templateName === 'string' && templateName.startsWith('TemplateStory'))
+  ) {
+    return STORY_TEMPLATE_DIMENSIONS;
+  }
   return templateDimensions[templateName] || templateDimensions['default'];
 }
 
