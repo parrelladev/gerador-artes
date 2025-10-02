@@ -53,7 +53,23 @@ body {
 }
 
 .story-header { display: flex; justify-content: flex-end; }
-.story-logo { width: var(--logo-size); height: auto; object-fit: contain; }
+.story-logo {
+  width: var(--logo-size);
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.story-logo svg .cls-1 {
+  fill: var(--logo-color, currentColor);
+}
 
 .story-content {
   max-width: clamp(520px, 70vw, 860px);

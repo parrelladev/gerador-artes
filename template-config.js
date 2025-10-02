@@ -3,7 +3,7 @@ const STORY_DIMENSIONS = { width: 1080, height: 1920 };
 
 const BASE_BINDINGS = [
   { selector: '#bg', type: 'image', field: 'resolvedBg', required: true },
-  { selector: '#logo', type: 'image', field: 'resolvedLogo', required: true },
+  { selector: '#logo', type: 'logo', field: 'resolvedLogo', required: true },
   { selector: '#title', type: 'text', field: 'h1', optional: true },
   { selector: '#subtitle', type: 'text', field: 'h2', optional: true },
   { selector: '#tag', type: 'text', field: 'tag', optional: true },
@@ -57,4 +57,3 @@ module.exports = {
     'se-cuida': fixedStory(),
   },
 };
-

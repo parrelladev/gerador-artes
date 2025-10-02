@@ -136,3 +136,15 @@ body {
   font-style: italic;
   font-size: 40px;
 }
+
+.story-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}

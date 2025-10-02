@@ -5,4 +5,5 @@
   --tag-bg: #0f0f10;
   --tag-ink: #ffffff;
   --photo-height: clamp(320px, 35vh, 675px);
+  --logo-color: #000000;
 }
