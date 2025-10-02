@@ -1,11 +1,16 @@
 [
   {
-    "template": "TemplateAGazetaStories",
-    "page": "pagina1",
-    "h1": "Os escravizados que ajudaram na construção do Convento da Penha",
-    "h2": "Negros atuaram nas obras para erguer o Convento da Penha e continuaram no local após o templo ficar pronto, atuando na manutenção do espaço",
-    "tag": "Cultura",
-    "bg": "https://midias.agazeta.com.br/2025/05/13/convento-da-penha-contou-com-o-trabalho-de-escravizados-na-construcao-credito-frm-escar-ufes-2725736-article.webp",
-    "logo": "logo"
+    "template": "layout-horizontal",
+    "page": "index",
+    "h1": "Famílias de pescadores do ES agradecem por orações e mobilização nas buscas",
+    "h2": "Fernanda Duarte e Luciene Santana agaurdavam ansiosas a chegada dos maridos após o resgate deles na terça-feira (30)",
+    "tag": "Urgente",
+    "bg": "https://midias.agazeta.com.br/2025/10/01/1200x630/os-casais-fernanda-duarte-e-maikel-araujo-e-ronald-menezes-e-luciene-santana-posam-juntos-em-coletiva-sobre-o-desaparecimento-em-alto-mar--2940538.webp",
+    "logo": "logo",
+    "originalBg": "https://midias.agazeta.com.br/2025/10/01/1200x630/os-casais-fernanda-duarte-e-maikel-araujo-e-ronald-menezes-e-luciene-santana-posam-juntos-em-coletiva-sobre-o-desaparecimento-em-alto-mar--2940538.webp",
+    "sourceUrl": "https://www.agazeta.com.br/es/cotidiano/familias-de-pescadores-do-es-agradecem-por-oracoes-e-mobilizacao-nas-buscas-1025",
+    "parameters": {
+      "theme": "azul"
+    }
   }
 ]

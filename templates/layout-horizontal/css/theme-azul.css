@@ -1,0 +1,8 @@
+:root {
+  --bg: #5d9fd0;
+  --ink: #101820;
+  --muted: #233344;
+  --tag-bg: #0f0f10;
+  --tag-ink: #ffffff;
+  --photo-height: clamp(320px, 35vh, 675px);
+}

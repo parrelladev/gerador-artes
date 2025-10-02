@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,20 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body>
     <div class="container">
         <!-- Header -->
         <header class="header">
             <h1>Gerador de Artes</h1>
-            <p>Escolha o formato e gere sua arte:</p>
+            <p>Explore as combinações de layout por agrupamento e selecione a variação que melhor se adapta à sua pauta</p>
         </header>
 
         <main class="stories-section">
-            <section class="stories-header">
-                <h2>Biblioteca de Stories</h2>
-                <p>Explore as combinações de layout por agrupamento e selecione a variação que melhor se adapta à sua pauta.</p>
-            </section>
-
             <nav class="category-tabs" id="storyCategoryTabs" aria-label="Agrupamentos de templates"></nav>
 
             <section class="templates-grid story-grid" id="storyTemplateGrid" aria-live="polite"></section>
@@ -47,11 +44,27 @@
                     </div>
                     <div class="form-group">
                         <label for="customSubtitle">Subtítulo Personalizado (opcional):</label>
-                        <input type="text" id="customSubtitle" placeholder="Deixe vazio para usar o subtítulo da notícia">
+                        <input type="text" id="customSubtitle"
+                            placeholder="Deixe vazio para usar o subtítulo da notícia">
                     </div>
                     <div class="form-group">
+                        <label for="customImageUrl">Imagem personalizada (opcional):</label>
+                        <input type="url" id="customImageUrl"
+                            placeholder="Cole um link de imagem para substituir a foto automatica">
+                        <div class="form-help">Quando preenchido, usamos esse link no lugar da imagem coletada
+                            automaticamente.</div>
+                    </div>
+
+                    <div class="form-group" id="themeWrapper" style="display: none;">
+                        <label for="customTheme">Tema</label>
+                        <select id="customTheme"></select>
+                        <div class="form-help">Altere apenas as cores do layout escolhido.</div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="customTag">Tag/Categoria *</label>
-                        <input type="text" id="customTag" placeholder="Ex: Acidente, Política, Esporte, etc." required list="categorySuggestions">
+                        <input type="text" id="customTag" placeholder="Ex: Acidente, Política, Esporte, etc." required
+                            list="categorySuggestions">
                         <datalist id="categorySuggestions">
                             <option value="Acidente">
                             <option value="Política">
@@ -94,4 +107,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

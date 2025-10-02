@@ -1,124 +1,151 @@
 # Gerador de Artes
 
-Este projeto Node.js automatiza a criação de artes jornalísticas para redes sociais a partir de templates HTML/CSS e dados estruturados. Ele disponibiliza uma interface web responsiva para operação por equipes de conteúdo e uma API/CLI pensada para integrações automáticas.
+Projeto Node.js para automatizar a criacao de artes jornalisticas a partir de templates HTML/CSS. O pipeline combina uma interface web para as equipes de conteudo, uma API REST e um motor headless (Puppeteer) que renderiza os layouts em PNG.
 
-## Visão geral da arquitetura
+## Visao geral da arquitetura
 
-O fluxo de geração é composto pelos seguintes componentes principais:
-
-| Componente | Função | Arquivo de referência |
+| Componente | Funcao | Arquivo de referencia |
 |------------|--------|-----------------------|
-| Servidor Express | Expõe a interface web, API REST e rotinas de upload e geração. | [`server.js`](server.js) |
-| Interface Web | Consome a API para capturar dados de notícias e acionar a geração das artes. | [`public/index.html`](public/index.html), [`public/script.js`](public/script.js), [`public/styles.css`](public/styles.css) |
-| Motor de renderização | Lê `input/data.json`, aplica os valores nos templates e exporta PNGs via Puppeteer. | [`generate.js`](generate.js) |
-| Templates | Conjunto de HTML/CSS parametrizados por IDs para cada página/formato disponível. | [`templates/`](templates) |
-| Utilitários de implantação | Automatizam criação de `config.js`, pastas de saída e script de inicialização. | [`deploy.js`](deploy.js), [`config.example.js`](config.example.js) |
+| Servidor Express | Exibe a interface web, API REST e rotinas de upload/geracao. | `server.js` |
+| Interface Web | Consome a API para capturar dados da noticia e acionar a geracao. | `public/index.html`, `public/script.js`, `public/styles.css` |
+| Motor de renderizacao | Le `input/data.json`, aplica parametros e exporta PNGs via Puppeteer. | `generate.js` |
+| Templates | Layouts HTML com CSS modularizado por tema em `templates/`. | `templates/` |
+| Configuracao de templates | Define dimensoes, bindings e atributos dinamicos. | `template-config.js` |
+| Utilitarios de deploy | Automatizam criacao de pastas/config e scripts auxiliares. | `deploy.js`, `config.example.js` |
 
-Os endpoints expostos incluem listagem de templates, preview de HTML/CSS, upload de ativos, extração de metadados de notícias (via Axios + Cheerio) e disparo da geração de artes.【F:server.js†L1-L196】
-
-## Pré-requisitos
+## Pre-requisitos
 
 - Node.js 18 ou superior (recomendado) e npm.
-- Navegador moderno para utilizar a interface web.
-- Pacotes do sistema necessários pelo Puppeteer (Chromium headless). Em servidores Linux, siga os requisitos listados na [documentação oficial](https://pptr.dev/troubleshooting#chrome-gets-downloaded) antes de executar `npm install`.
+- Dependencias de sistema exigidas pelo Puppeteer (Chromium). Em Linux, siga a [documentacao oficial](https://pptr.dev/troubleshooting#chrome-gets-downloaded) antes de `npm install`.
 
-## Configuração inicial
+## Configuracao inicial
 
-1. Instale dependências:
+1. Instale dependencias:
    ```bash
    npm install
    ```
-2. (Opcional) Execute o assistente de implantação para gerar `config.js` e `start.sh` customizados:
+2. Opcional: execute o assistente de deploy para gerar `config.js` e scripts de inicializacao adaptados ao ambiente.
    ```bash
    npm run deploy
    ```
-   Responda às perguntas sobre porta e diretórios. O script cria `start.sh` (Linux/macOS) com as variáveis de ambiente adequadas e garante a existência da pasta de saída.【F:deploy.js†L1-L83】
-3. Se preferir configurar manualmente, copie [`config.example.js`](config.example.js) para `config.js` e ajuste as propriedades `port`, `outputDir` e `publicOutputDir`. Você também pode definir `PORT`, `OUTPUT_DIR` e `PUBLIC_OUTPUT_DIR` diretamente no ambiente.【F:config.example.js†L1-L21】
+   O script pergunta por porta, caminhos de output e cria `start.sh` (Linux/macOS) com as variaveis de ambiente apropriadas.
+3. Configuracao manual: copie `config.example.js` para `config.js` e ajuste `port`, `outputDir` e `publicOutputDir`. As mesmas chaves podem ser definidas via `PORT`, `OUTPUT_DIR` e `PUBLIC_OUTPUT_DIR`.
+4. Revise `template-config.js` (veja a sessao dedicada abaixo) para confirmar que os templates disponiveis possuem as definicoes e bindings esperados.
 
 ## Executando em desenvolvimento
 
-- Interface web + API:
-  ```bash
-  npm start
-  ```
-  O servidor estará em `http://localhost:3000` (ou na porta definida pelas variáveis/`config.js`). A interface permite informar a URL da notícia, editar título/subtítulo/tag e dispara automaticamente a extração de metadados e geração do material.【F:public/index.html†L1-L120】【F:public/script.js†L1-L199】
+Interface web + API:
+```bash
+npm start
+```
+O servidor fica disponivel em `http://localhost:3000` (ou na porta escolhida). A interface coleta dados da noticia, permite ajustes de titulo/subtitulo/tag e dispara a geracao.
 
-- Reload automático durante ajustes no servidor (necessário `nodemon` já presente em `devDependencies`):
-  ```bash
-  npm run dev
-  ```
+Reload automatico durante desenvolvimento (usa `nodemon`):
+```bash
+npm run dev
+```
 
-## Gerando artes via CLI/API
+## Gerando artes via CLI ou API
 
-### Uso pela interface
-1. Clique em um dos formatos disponíveis (Feed, Stories etc.).
-2. Informe a URL da notícia. O front-end solicitará `/api/extract-news` para coletar título, descrição e imagem de destaque da página.【F:public/script.js†L116-L161】【F:server.js†L165-L214】
-3. Ajuste os campos opcionais e confirme. O navegador envia os dados para `/api/generate`, que valida a presença de `bg` e `logo`, grava `input/data.json`, executa `generate.js` e retorna os arquivos PNG gerados. Em caso de erro de validação a API responde com HTTP 400 e detalhes dos campos ausentes.【F:server.js†L91-L170】
-4. Faça o download pelo link exibido na notificação.
-
-### Uso por linha de comando
-
-Prepare `input/data.json` com um array de objetos contendo os campos esperados por `generate.js`:
+`generate.js` trabalha sobre um array de entradas em `input/data.json`. Exemplo minimo:
 ```json
 [
   {
-    "template": "TemplateStoriesVerticalSuperiorAzul",
-    "page": "pagina1",
-    "h1": "Título principal",
-    "h2": "Subtítulo opcional",
-    "text": null,
+    "template": "layout-vertical",
+    "page": "index",
+    "h1": "Titulo principal",
+    "h2": "Subtitulo opcional",
     "tag": "Categoria",
-    "bg": "https://exemplo.com/imagem.jpg", // obrigatório, URL ou nome de arquivo presente em input/
-    "logo": "nome_do_arquivo_sem_extensao"   // obrigatório, URL ou nome de arquivo presente em input/
+    "bg": "https://exemplo.com/imagem.jpg",
+    "logo": "logo",
+    "parameters": {
+      "theme": "azul"
+    }
   }
 ]
 ```
-Depois execute:
+- `bg` e `logo` aceitam URL completa ou nome de arquivo presente em `input/` (PNG sem extensao).
+- Use `parameters.theme` para selecionar a variante de cor quando o layout oferecer temas (`azul`, `branco`, `preto`, `rosa`, `amarelo`).
+- `customBg` continua disponivel para forcar uma imagem especifica, ignorando a coletada automaticamente.
+
+Para gerar via CLI:
 ```bash
 npm run generate
 ```
-O script valida a presença do template, certifica-se de que `bg` e `logo` são strings não vazias (evitando erros ao montar os caminhos das imagens), injeta os valores nos elementos com IDs correspondentes e exporta `arte_<template>_<pagina>_<n>.png` para a pasta configurada (por padrão `./output`). Ele aguarda explicitamente o carregamento das imagens para evitar artefatos parciais.【F:generate.js†L1-L118】【F:generate.js†L119-L162】
+O script valida a existencia do template, ajusta o viewport conforme `template-config.js`, injeta textos/imagens/estilos declarados e salva `arte_<template>_<pagina>_<n>.png` em `./output` (ou no diretorio definido por `OUTPUT_DIR`).
 
-## Estrutura de diretórios
+## Controlando templates com `template-config.js`
+
+O arquivo `template-config.js` centraliza toda a configuracao dinamica:
+
+- `defaults`: bindings basicos (`bg`, `logo`, `title`, `subtitle`, `tag`, `text`).
+- `templates`: objeto cujas chaves sao as pastas em `templates/`. Cada entrada pode definir:
+  - `dimensions`: `{ width, height }` para configurar o viewport do Puppeteer.
+  - `bindings`: instrucoes adicionais. Para layouts com tema, o config injeta `themeStylesheet` e `data-theme` automaticamente a partir de `parameters.theme`.
+  - `cssVars`, `classes`, `attributes`: opcionais para personalizacoes especificas.
+
+Bindings adicionais expostos por padrao:
+
+| Campo em `data.json` | Alvo | Tipo | Observacoes |
+|----------------------|------|------|-------------|
+| `bg` / `logo` | `#bg`, `#logo` | `image` | URL ou arquivo local (`input/*.png`) |
+| `customBg` | `#bg` | `image` | Substitui `bg` quando informado |
+| `h1` | `#title` | `text` | Opcional |
+| `h2` | `#subtitle` | `text` | Opcional |
+| `tag` | `#tag` | `text` | Opcional |
+| `text` | `#textBody` | `text` | Opcional |
+| `parameters.theme` | `#themeStylesheet` / `html[data-theme]` | `attribute` | Define o arquivo `css/theme-<tema>.css` carregado no layout |
+
+## Estrutura de diretorios
 
 ```
 .
-├── public/                 # Front-end estático servido pelo Express
-├── templates/              # Templates organizados por formato/página
-├── input/
-│   └── data.json           # Dados usados na geração atual
-├── output/                 # PNGs gerados (criada automaticamente)
-├── server.js               # API HTTP + orquestração de geração
-├── generate.js             # Renderização headless com Puppeteer
-├── deploy.js               # Assistente de configuração para servidores
-└── config.example.js       # Modelo de configuração para ambientes
++- public/                     # Front-end estatico
++- templates/
+|  +- layout-horizontal/
+|  |  +- index.html            # Estrutura unica para o layout
+|  |  +- css/
+|  |     +- base.css           # Estilos compartilhados
+|  |     +- theme-azul.css     # Variantes de cor (tema)
+|  |     +- theme-branco.css
+|  |     +- theme-preto.css
+|  +- layout-vertical/
+|  +- layout-hz/
+|  +- layout-bbc/
+|  +- opiniao/
+|  +- colunistas/
+|  +- se-cuida/
+|  +- TemplateAGazeta/         # Templates de feed mantidos no formato original
+|  +- TemplateAGazetaFeed/
++- input/
+|  +- data.json                # Dados usados na geracao atual
++- output/                     # PNGs gerados (criada automaticamente)
++- server.js                   # API HTTP + orquestracao de geracao
++- generate.js                 # Renderizacao headless com Puppeteer
++- template-config.js          # Configuracao de dimensoes/bindings
++- deploy.js                   # Assistente de configuracao
++- config.example.js           # Modelo de configuracao
 ```
 
-## Mantendo e evoluindo o projeto
+## Criacao ou ajuste de templates
 
-### Atualização de dependências
-- Use `npm outdated` para inspecionar novas versões.
-- Teste localmente com `npm install <pacote>@latest` e valide geração web/CLI antes de atualizar o `package-lock.json`.
-- Puppeteer acompanha uma versão específica do Chromium. Ao atualizar, revise requisitos de sistema em servidores de produção.
+1. Estruturas reutilizaveis ficam em `templates/<layout>/index.html` e usam CSS modular (`css/base.css` + temas opcionais).
+2. Adicione o HTML com placeholders (`{{BG}}`, `{{LOGO}}`, `{{TITLE}}`, etc.).
+3. Em layouts com varia��es de cor, defina as variaveis `--brand-*` em `css/base.css` e sobrescreva-as nos arquivos `css/theme-*.css`.
+4. Registre o novo layout (ou tema extra) em `template-config.js` e, se necessario, exponha-o na interface web (`public/script.js`).
+5. Sempre mantenha os IDs esperados (`bg`, `logo`, `title`, `subtitle`, `tag`, `textBody`) para que o motor consiga preencher os dados.
 
-### Criação ou ajuste de templates
-1. Crie uma pasta em `templates/NomeDoTemplate/paginaX/` contendo `index.html` e `styles.css`.
-2. Garanta que os elementos a serem preenchidos programaticamente tenham IDs (`title`, `subtitle`, `textBody`, `bg`, `logo`, `tag`, etc.). O `generate.js` manipula esses IDs ao executar `page.evaluate`.
-3. Se um formato exigir dimensões diferentes, adicione-as ao objeto `templateDimensions` em `generate.js`.
-4. Atualize `getTemplateDescription` em `server.js` e, se desejado, ajuste a interface em `public/index.html` para exibir o novo template.
+## Manutencao
 
-### Monitoramento e logs
-- `generate.js` registra no console o progresso de cada arte e falhas de carregamento de imagens. Em produção, execute o servidor com um gerenciador de processos (PM2, systemd) para persistir logs e reiniciar automaticamente.
-- As rotas Express retornam mensagens de erro detalhadas em JSON; ao integrar via API, trate o campo `error` para exibir feedback amigável ao usuário.【F:server.js†L91-L214】
+- Dependencias: use `npm outdated` periodicamente. Teste o fluxo completo antes de commitar o `package-lock.json` atualizado.
+- Logs: `generate.js` imprime `[info]`, `[ok]` e `[erro]`. Em producao, execute o servidor com um gerenciador (PM2, systemd) para persistir logs e reiniciar em caso de falhas.
+- Limpeza: a pasta `output/` acumula artes antigas; agende rotinas de limpeza ou mova os arquivos para armazenamento externo conforme a politica da equipe.
 
-### Limpeza e armazenamento
-- Os arquivos gerados permanecem na pasta `output`. Agende rotinas (cron, scripts PowerShell) para arquivar ou limpar periodicamente conforme a política da equipe.
-- A API `/api/generated-files` lista os PNGs existentes, útil para dashboards ou integrações externas.【F:server.js†L139-L158】
+## Implantacao
 
-## Implantação
-
-Consulte [`DEPLOY.md`](DEPLOY.md) para instruções detalhadas sobre servidores Linux/Windows, configuração de proxy reverso e troubleshooting. Em ambientes containerizados, exponha `PORT` e monte volumes para `input/` e `output/` para preservar arquivos entre reinicializações.
+Consulte `DEPLOY.md` para instrucoes de servidores Linux/Windows, configuracao de proxy reverso e troubleshooting. Em conteineres, exponha `PORT` e monte volumes para `input/` e `output/`.
 
 ---
 
-Sinta-se à vontade para adaptar o projeto às necessidades da redação. Mantenha `input/data.json` versionado apenas se contiver exemplos genéricos; para dados sensíveis, utilize armazenamento externo ou automatize a geração de JSON via integrações.
+Personalize o projeto de acordo com as necessidades da redacao. Para dados sensiveis, mantenha-os fora do versionamento e integre automacoes que gerem `input/data.json` sob demanda.
+
