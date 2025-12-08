@@ -28,7 +28,7 @@ Rotas expostas:
 {
   "dimensions": { "width": 1080, "height": 1920 },
   "logoField": "logo",           // nome do campo exigido
-  "defaultLogo": "logo.svg",     // opcional (fallback)
+  "defaultLogo": "logo-a-gazeta.svg",     // opcional (fallback)
   "bindings": [
     { "selector": "#bg", "type": "image", "field": "resolvedBg", "required": true },
     { "selector": "#logo", "type": "logo", "field": "resolvedLogo", "required": true },

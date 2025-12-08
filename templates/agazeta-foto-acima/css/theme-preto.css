@@ -1,0 +1,9 @@
+:root {
+  --bg: #181818;
+  --ink: #f5f5f5;
+  --muted: #d0d0d0;
+  --tag-bg: #f5f5f5;
+  --tag-ink: #111111;
+  --photo-height: clamp(320px, 35vh, 675px);
+  --logo-color: #ffffff;
+}

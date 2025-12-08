@@ -13,7 +13,7 @@ const storyTemplates = [
     ]
   },
   {
-    id: 'layout-vertical',
+    id: 'agazeta-foto-acima',
     name: 'A Gazeta - Foto acima',
     group: 'Principais',
     preview: 'previews/stories/Marca-A-Gazeta.png',
@@ -370,7 +370,7 @@ async function generateArt() {
 
     const manifestData = await loadManifest(currentTemplate, 'index');
     const logoField = manifestData.manifest?.logoField || 'logo';
-    const defaultLogo = manifestData.manifest?.defaultLogo || 'logo';
+    const defaultLogo = manifestData.manifest?.defaultLogo || 'logo-a-gazeta';
     const pageName = manifestData.page || 'index';
 
     const artData = {

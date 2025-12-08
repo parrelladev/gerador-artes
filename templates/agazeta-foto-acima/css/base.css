@@ -1,0 +1,158 @@
+@font-face {
+  font-family: 'Maga Black';
+  src: url('../fonts/Maga-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../fonts/Montserrat-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ===== Reset base ===== */
+*,
+*::before,
+*::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1080px;
+  height: 1920px;
+  margin: 0;
+}
+
+:root {
+  --bg: #5d9fd0;
+  --ink: #101820;
+  --muted: #1f2f3f;
+  --tag-bg: #0f0f10;
+  --tag-ink: #ffffff;
+  --photo-height: clamp(320px, 35vh, 675px);
+  --pad-x: clamp(42px, 7vw, 120px);
+  --pad-y: clamp(48px, 9vh, 128px);
+  --logo-size: clamp(42px, 10vw, 70px);
+  --tag-gap: clamp(28px, 5vh, 60px);
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.story-page.layout-horizontal { background: var(--bg); color: var(--ink); }
+
+.story-canvas {
+  position: relative; width: 100%; height: 100%;
+  background: var(--bg); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+.story-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;                         /* <- antes era bottom: 0 */
+  width: 100%;
+  height: var(--photo-height);
+  object-fit: cover;
+  object-position: center top;    /* opcional: foca o topo da foto */
+  z-index: 1;
+}
+
+.story-overlay {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(24px, 4vh, 52px);
+  padding: var(--pad-y) var(--pad-x);
+  height: 100%;                   /* <- agora ocupa a tela toda */
+}
+
+
+.story-header {
+  position: absolute;
+  top: var(--pad-y);              /* distância do topo */
+  right: var(--pad-x);            /* distância da direita */
+  display: flex;
+  justify-content: flex-end;
+}
+
+.story-logo {
+  width: var(--logo-size);
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-logo svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.story-logo svg .cls-1 {
+  fill: var(--logo-color, currentColor);
+}
+
+.story-content {
+  max-width: clamp(520px, 100vw, 860px);
+  color: var(--ink);
+
+  /* Antes era só margin-top: clamp(24px, 4vh, 48px); */
+  margin-top: calc(var(--photo-height) + 32px);
+}
+
+
+/* ===== Tag ===== */
+.story-tag {
+  display: inline-block;
+  background: var(--tag-bg);
+  color: var(--tag-ink);
+  border-radius: 0px;
+  line-height: 1;
+  padding: 12px 30px;
+  margin-bottom: var(--tag-gap);
+  font-family: 'Maga Black', sans-serif;
+  font-weight: 900;
+  font-size: 35px;
+  font-style: normal;
+}
+
+/* ===== Tí­tulo ===== */
+#title {
+  /* Tipografia fixa conforme solicitado */
+  font-family: 'Maga Black', sans-serif;
+  font-weight: 900;
+  font-size: 75px;
+  font-style: normal;
+
+  /* Ajustes de leitura */
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+}
+
+/* ===== SubtÃ­tulo ===== */
+#subtitle {
+  /* Tipografia fixa conforme solicitado */
+  font-family: 'Montserrat', sans-serif;
+  font-style: italic;
+  font-size: 40px;
+
+  /* Ajustes de layout/cores */
+  margin-top: clamp(18px, 2.6vw, 36px);
+  max-width: 72ch;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
