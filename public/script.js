@@ -4,7 +4,7 @@ const storyTemplates = [
     id: 'layout-horizontal',
     name: 'A Gazeta - Horizontal',
     group: 'Principais',
-    preview: 'previews/stories/horiz-foto-lateral-azul.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-A-Gazeta.png',
     defaultTheme: 'azul',
     themes: [
       { id: 'azul', name: 'Azul', preview: 'previews/stories/horiz-foto-lateral-azul.png' },
@@ -16,7 +16,7 @@ const storyTemplates = [
     id: 'layout-vertical',
     name: 'A Gazeta - Vertical',
     group: 'Principais',
-    preview: 'previews/stories/vert-foto-acima-azul.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-A-Gazeta.png',
     defaultTheme: 'azul',
     themes: [
       { id: 'azul', name: 'Azul', preview: 'previews/stories/vert-foto-acima-azul.png' },
@@ -28,7 +28,7 @@ const storyTemplates = [
     id: 'layout-hz',
     name: 'HZ Entretenimento',
     group: 'Principais',
-    preview: 'previews/stories/horiz-conteudo-diagonal-roxo.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-HZ-Principal-Positivo.png',
     defaultTheme: 'rosa',
     themes: [
       { id: 'rosa', name: 'Rosa', preview: 'previews/stories/horiz-conteudo-diagonal-roxo.png' },
@@ -41,42 +41,42 @@ const storyTemplates = [
     id: 'colunistas',
     name: 'A Gazeta - Colunistas',
     group: 'Especiais',
-    preview: 'previews/stories/esp-cultura-foto-lateral-roxo.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-A-Gazeta-Black.png',
     themes: []
   },
   {
     id: 'opiniao',
     name: 'A Gazeta - Opiniao',
     group: 'Especiais',
-    preview: 'previews/stories/esp-urgente-conteudo-destaque-vermelho.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-A-Gazeta-Black.png',
     themes: []
   },
   {
     id: 'layout-bbc',
-    name: 'BBC',
+    name: 'BBC News',
     group: 'Especiais',
-    preview: 'previews/stories/esp-eleicoes-conteudo-central-azul.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-BBC.png',
     themes: []
   },
   {
     id: 'fonte-hub',
     name: 'Fonte Hub',
     group: 'Especiais',
-    preview: 'previews/stories/esp-esporte-foto-acima-verde.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-Fonte-Hub.png',
     themes: []
   },
   {
     id: 'se-cuida',
     name: 'HZ - Se Cuida',
     group: 'Especiais',
-    preview: 'previews/stories/esp-esporte-foto-acima-verde.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-Se-Cuida.png',
     themes: []
   },
   {
     id: 'rede-gazeta',
     name: 'Rede Gazeta',
     group: 'Especiais',
-    preview: 'previews/stories/esp-esporte-foto-acima-verde.png',
+    preview: 'https://www.redegazeta.com.br/wp-content/uploads/2025/12/Marca-Rede-Gazeta.png',
     themes: []
   }
 ];
