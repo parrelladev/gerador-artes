@@ -1,0 +1,16 @@
+{
+  "name": "Template A Gazeta Feed - pagina1",
+  "dimensions": { "width": 1080, "height": 1080 },
+  "logoField": "logo",
+  "defaultLogo": "logo.svg",
+  "bindings": [
+    { "selector": "#bg", "type": "image", "field": "resolvedBg", "required": true },
+    { "selector": "#logo", "type": "logo", "field": "resolvedLogo", "required": true },
+    { "selector": "#title", "type": "text", "field": "h1" },
+    { "selector": "#subtitle", "type": "text", "field": "h2" },
+    { "selector": "#tag", "type": "text", "field": "tag" }
+  ],
+  "cssVars": [],
+  "classes": [],
+  "attributes": []
+}

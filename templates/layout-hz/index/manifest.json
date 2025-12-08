@@ -1,0 +1,19 @@
+{
+  "name": "Layout HZ - index",
+  "dimensions": { "width": 1080, "height": 1920 },
+  "logoField": "logo",
+  "defaultLogo": "logo.svg",
+  "bindings": [
+    { "selector": "#bg", "type": "image", "field": "resolvedBg", "required": true },
+    { "selector": "#logo", "type": "logo", "field": "resolvedLogo", "required": true },
+    { "selector": "#title", "type": "text", "field": "h1" },
+    { "selector": "#subtitle", "type": "text", "field": "h2" },
+    { "selector": "#tag", "type": "text", "field": "tag" }
+  ],
+  "cssVars": [],
+  "classes": [],
+  "attributes": [
+    { "selector": "#themeStylesheet", "type": "attribute", "name": "href", "field": "themeStylesheet" },
+    { "selector": "html", "type": "attribute", "name": "data-theme", "field": "themeName" }
+  ]
+}

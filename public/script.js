@@ -1,7 +1,8 @@
 const storyTemplates = [
+  // PRINCIPAIS
   {
     id: 'layout-horizontal',
-    name: 'Layout Horizontal',
+    name: 'A Gazeta - Horizontal',
     group: 'Principais',
     preview: 'previews/stories/horiz-foto-lateral-azul.png',
     defaultTheme: 'azul',
@@ -13,7 +14,7 @@ const storyTemplates = [
   },
   {
     id: 'layout-vertical',
-    name: 'Layout Vertical',
+    name: 'A Gazeta - Vertical',
     group: 'Principais',
     preview: 'previews/stories/vert-foto-acima-azul.png',
     defaultTheme: 'azul',
@@ -25,7 +26,7 @@ const storyTemplates = [
   },
   {
     id: 'layout-hz',
-    name: 'Layout HZ',
+    name: 'HZ Entretenimento',
     group: 'Principais',
     preview: 'previews/stories/horiz-conteudo-diagonal-roxo.png',
     defaultTheme: 'rosa',
@@ -34,30 +35,46 @@ const storyTemplates = [
       { id: 'amarelo', name: 'Amarelo', preview: 'previews/stories/vert-foto-lateral-amarelo.png' }
     ]
   },
-  {
-    id: 'layout-bbc',
-    name: 'Layout BBC',
-    group: 'Especiais',
-    preview: 'previews/stories/esp-eleicoes-conteudo-central-azul.png',
-    themes: []
-  },
-  {
-    id: 'opiniao',
-    name: 'Layout Opiniao',
-    group: 'Especiais',
-    preview: 'previews/stories/esp-urgente-conteudo-destaque-vermelho.png',
-    themes: []
-  },
+
+  // ESPECIAIS
   {
     id: 'colunistas',
-    name: 'Layout Colunistas',
+    name: 'A Gazeta - Colunistas',
     group: 'Especiais',
     preview: 'previews/stories/esp-cultura-foto-lateral-roxo.png',
     themes: []
   },
   {
+    id: 'opiniao',
+    name: 'A Gazeta - Opiniao',
+    group: 'Especiais',
+    preview: 'previews/stories/esp-urgente-conteudo-destaque-vermelho.png',
+    themes: []
+  },
+  {
+    id: 'layout-bbc',
+    name: 'BBC',
+    group: 'Especiais',
+    preview: 'previews/stories/esp-eleicoes-conteudo-central-azul.png',
+    themes: []
+  },
+  {
+    id: 'fonte-hub',
+    name: 'Fonte Hub',
+    group: 'Especiais',
+    preview: 'previews/stories/esp-esporte-foto-acima-verde.png',
+    themes: []
+  },
+  {
     id: 'se-cuida',
-    name: 'Layout Se Cuida',
+    name: 'HZ - Se Cuida',
+    group: 'Especiais',
+    preview: 'previews/stories/esp-esporte-foto-acima-verde.png',
+    themes: []
+  },
+  {
+    id: 'rede-gazeta',
+    name: 'Rede Gazeta',
     group: 'Especiais',
     preview: 'previews/stories/esp-esporte-foto-acima-verde.png',
     themes: []
@@ -66,6 +83,7 @@ const storyTemplates = [
 
 const templateLookup = Object.fromEntries(storyTemplates.map(template => [template.id, template]));
 const storyGroups = Array.from(new Set(storyTemplates.map(template => template.group)));
+const manifestCache = {};
 
 let currentTemplate = null;
 let currentTemplateMeta = null;
@@ -193,8 +211,8 @@ function renderTemplateCards() {
 
     const themeInfo = Array.isArray(template.themes) && template.themes.length
       ? (template.themes.length === 1
-          ? '<span class="template-meta">Tema unico</span>'
-          : `<span class="template-meta">${template.themes.length} temas</span>`)
+        ? '<span class="template-meta">Tema unico</span>'
+        : `<span class="template-meta">${template.themes.length} temas</span>`)
       : '';
 
     card.innerHTML = `
@@ -297,6 +315,22 @@ function closeModalHandler() {
   }
 }
 
+async function loadManifest(template, page = 'index') {
+  const cacheKey = `${template}/${page}`;
+  if (manifestCache[cacheKey]) {
+    return manifestCache[cacheKey];
+  }
+
+  const response = await fetch(`/api/templates/${template}/${page}`);
+  if (!response.ok) {
+    throw new Error('Template nao encontrado');
+  }
+
+  const data = await response.json();
+  manifestCache[cacheKey] = data;
+  return data;
+}
+
 async function generateArt() {
   const url = newsUrl.value.trim();
   const tag = customTag.value.trim();
@@ -334,15 +368,18 @@ async function generateArt() {
   try {
     showLoading();
 
+    const manifestData = await loadManifest(currentTemplate, 'index');
+    const logoField = manifestData.manifest?.logoField || 'logo';
+    const defaultLogo = manifestData.manifest?.defaultLogo || 'logo';
+    const pageName = manifestData.page || 'index';
+
     const artData = {
       template: currentTemplate,
-      page: 'index',
+      page: pageName,
       h1: customTitle.value.trim() || null,
       h2: customSubtitle.value.trim() || null,
       tag: tag,
       bg: null,
-      logo: 'logo',
-      originalBg: null,
       sourceUrl: url
     };
 
@@ -354,10 +391,6 @@ async function generateArt() {
       artData.parameters = parameters;
     }
 
-    if (imageOverride) {
-      artData.customBg = imageOverride;
-    }
-
     const extractedData = await extractNewsData(url);
 
     if (extractedData.h1 && !customTitle.value.trim()) {
@@ -366,11 +399,7 @@ async function generateArt() {
     if (extractedData.h2 && !customSubtitle.value.trim()) {
       artData.h2 = extractedData.h2;
     }
-    if (extractedData.bg) {
-      artData.originalBg = extractedData.bg;
-    }
-
-    const effectiveBg = imageOverride || artData.originalBg || null;
+    const effectiveBg = imageOverride || extractedData.bg || null;
 
     if (!effectiveBg) {
       showToast('Nao encontramos uma imagem valida. Informe um link de imagem ou tente novamente.', 'error');
@@ -379,16 +408,12 @@ async function generateArt() {
     }
 
     artData.bg = effectiveBg;
+    artData[logoField] = defaultLogo;
 
-    const result = await generateArtwork([artData]);
+    await downloadGeneratedArtwork(artData);
 
-    if (result.success) {
-      showToast('Arte gerada com sucesso!', 'success');
-      showDownloadLink(result.filename);
-      closeModalHandler();
-    } else {
-      showToast('Erro ao gerar arte: ' + result.error, 'error');
-    }
+    showToast('Arte gerada e download iniciado!', 'success');
+    closeModalHandler();
   } catch (error) {
     console.error('Erro ao gerar arte:', error);
     showToast('Erro ao gerar arte: ' + error.message, 'error');
@@ -397,9 +422,62 @@ async function generateArt() {
   }
 }
 
+async function downloadGeneratedArtwork(arte) {
+  let attempt = 0;
+  const maxRetries = 5;
+
+  // Tenta serializar a geração quando o servidor estiver ocupado (BUSY/409)
+  // com um backoff simples entre as tentativas.
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const response = await fetch('/api/generate/download', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ arte })
+    });
+
+    if (response.status === 409 && attempt < maxRetries) {
+      attempt += 1;
+      const delay = 1500 * attempt;
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
+    if (!response.ok) {
+      let message = 'Erro ao gerar arte';
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const errorBody = await response.json();
+        if (errorBody && errorBody.detail) {
+          message = errorBody.detail;
+        }
+      } catch (e) {
+        // Ignora falha ao ler corpo de erro
+      }
+      throw new Error(message);
+    }
+
+    // eslint-disable-next-line no-await-in-loop
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'arte.png';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    return;
+  }
+}
+
 async function extractNewsData(url) {
   try {
-    const response = await fetch('/api/extract-news', {
+    const response = await fetch('/api/news/extract', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -415,34 +493,6 @@ async function extractNewsData(url) {
   } catch (error) {
     console.error('Erro ao extrair dados:', error);
     return {};
-  }
-}
-
-async function generateArtwork(artes) {
-  try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ artes })
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error || 'Erro ao gerar arte');
-    }
-
-    return {
-      success: true,
-      filename: result.files[0] || 'arte_gerada.png'
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message
-    };
   }
 }
 
@@ -471,7 +521,7 @@ function showToast(message, type = 'info') {
 
   const icon = type === 'success' ? 'check-circle'
     : type === 'error' ? 'exclamation-circle'
-    : 'info-circle';
+      : 'info-circle';
 
   toast.innerHTML = `
     <i class="fas fa-${icon}"></i>
@@ -483,20 +533,6 @@ function showToast(message, type = 'info') {
   setTimeout(() => {
     toast.remove();
   }, 5000);
-}
-
-function showDownloadLink(filename) {
-  const downloadLink = document.createElement('a');
-  downloadLink.href = `/output/${filename}`;
-  downloadLink.download = filename;
-  downloadLink.className = 'download-link';
-  downloadLink.innerHTML = '<i class="fas fa-download"></i> Baixar Arte Gerada';
-
-  toastContainer.appendChild(downloadLink);
-
-  setTimeout(() => {
-    downloadLink.remove();
-  }, 10000);
 }
 
 function createPreviewsFolder() {

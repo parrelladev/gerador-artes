@@ -1,1 +1,17 @@
-/output/*
+# Saídas geradas
+output/
+
+# Dependências
+node_modules/
+
+# Configuração local (não versionar)
+config.js
+.env
+
+# Cobertura de testes
+coverage/
+
+# Logs e arquivos temporários comuns
+npm-debug.log*
+yarn-error.log*
+*.log

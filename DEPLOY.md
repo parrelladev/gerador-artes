@@ -1,46 +1,59 @@
-# 🚀 Deploy no Servidor da Empresa
+# Deploy no Servidor da Empresa
 
-Este guia explica como configurar o Gerador de Artes para rodar no servidor da empresa.
+Este guia explica como configurar o Gerador de Artes para rodar em um servidor (Linux ou Windows), usando a versão atual do projeto.
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 - Node.js 16+ instalado no servidor
 - Acesso ao servidor (SSH ou RDP)
 - Permissões para criar pastas e executar aplicações
 
-## 🔧 Instalação Rápida
+## Instalação Rápida
 
-### 1. Upload dos Arquivos
+### 1. Upload dos arquivos
+
+Copie todo o conteúdo do repositório para o servidor, por exemplo:
+
 ```bash
-# Faça upload de todos os arquivos para o servidor
-# Exemplo: /var/www/artes/ ou C:\inetpub\wwwroot\artes\
+/var/www/artes/              # Linux
+C:\inetpub\wwwroot\artes\    # Windows
 ```
 
-### 2. Instalar Dependências
+### 2. Instalar dependências
+
 ```bash
 cd /caminho/para/gerador-artes
 npm install
 ```
 
-### 3. Configurar (Automático)
+### 3. Configurar (automático)
+
+Opcionalmente, gere um `config.js` interativo:
+
 ```bash
 node deploy.js
 ```
 
-### 4. Iniciar o Servidor
-```bash
-# Opção 1: Direto
-node server.js
+Você também pode copiar e ajustar `config.example.js` manualmente.
+As variáveis de ambiente `PORT`, `OUTPUT_DIR` e `PUBLIC_OUTPUT_DIR` sempre têm prioridade.
 
-# Opção 2: Com script
-./start.sh  # Linux
-node start.sh  # Windows
+### 4. Iniciar o servidor
+
+```bash
+# Opção 1: via npm (recomendado)
+npm start
+
+# Opção 2: direto com Node
+node src/server.js
 ```
 
-## ⚙️ Configuração Manual
+O servidor sobe, por padrão, na porta `3000` (ou na porta definida em `PORT`/`config.js`).
 
-### Variáveis de Ambiente
-Crie um arquivo `.env` ou configure as variáveis:
+## Configuração Manual
+
+### Variáveis de ambiente
+
+Você pode configurar via `.env` (se usar algum gerenciador) ou diretamente no shell:
 
 ```bash
 # Porta do servidor
@@ -53,31 +66,34 @@ OUTPUT_DIR=/var/www/artes/output
 PUBLIC_OUTPUT_DIR=/artes/output
 ```
 
-### Exemplos de Configuração
+### Exemplos de configuração
 
 #### Linux (Apache/Nginx)
+
 ```bash
 # Pasta de artes
 OUTPUT_DIR=/var/www/artes/output
 PUBLIC_OUTPUT_DIR=/artes/output
 
 # Iniciar
-PORT=3000 OUTPUT_DIR=/var/www/artes/output PUBLIC_OUTPUT_DIR=/artes/output node server.js
+PORT=3000 OUTPUT_DIR=/var/www/artes/output PUBLIC_OUTPUT_DIR=/artes/output node src/server.js
 ```
 
-#### Windows (IIS)
+#### Windows (IIS ou serviço)
+
 ```cmd
-# Pasta de artes
+REM Pasta de artes
 set OUTPUT_DIR=C:\inetpub\wwwroot\artes\output
 set PUBLIC_OUTPUT_DIR=/artes/output
 
-# Iniciar
-set PORT=3000 && node server.js
+REM Iniciar
+set PORT=3000 && node src/server.js
 ```
 
-## 🌐 Configuração de Proxy (Opcional)
+## Configuração de Proxy (Opcional)
 
 ### Nginx
+
 ```nginx
 server {
     listen 80;
@@ -97,6 +113,7 @@ server {
 ```
 
 ### Apache
+
 ```apache
 <VirtualHost *:80>
     ServerName artes.empresa.com
@@ -114,41 +131,56 @@ server {
 </VirtualHost>
 ```
 
-## 🔄 Processo de Atualização
+## Processo de Atualização
 
-### 1. Parar o Servidor
+### 1. Parar o servidor
+
+Se estiver rodando em primeiro plano, pare com `Ctrl+C`.
+Para localizar processos em background:
+
 ```bash
-# Encontrar o processo
+# Encontrar o processo (Linux)
 ps aux | grep node
-# ou
-netstat -ano | findstr :3000
 
-# Parar
-kill -9 PID  # Linux
-taskkill /PID PID /F  # Windows
+# Windows
+netstat -ano | findstr :3000
 ```
 
-### 2. Atualizar Código
+E então matar o processo, se necessário:
+
+```bash
+kill -9 PID             # Linux
+taskkill /PID PID /F    # Windows
+```
+
+### 2. Atualizar código
+
 ```bash
 # Fazer backup
 cp -r /var/www/artes /var/www/artes.backup
 
-# Atualizar arquivos
-# (fazer upload dos novos arquivos)
+# Atualizar arquivos (novo deploy via git ou upload)
 ```
 
 ### 3. Reiniciar
+
 ```bash
-node server.js
+npm start
 ```
 
-## 📁 Estrutura de Pastas no Servidor
+## Estrutura de Pastas no Servidor
 
-```
-/var/www/artes/  # ou C:\inetpub\wwwroot\artes\
-├── server.js
-├── generate.js
+Exemplo em `/var/www/artes` (Linux) ou `C:\inetpub\wwwroot\artes` (Windows):
+
+```text
+/var/www/artes/
+├── src/
+│   └── server.js          # Servidor Express
+├── cli.js                 # CLI interativo (npm run cli)
+├── deploy.js              # Assistente para gerar config.js
+├── config.example.js      # Exemplo de configuração
 ├── package.json
+├── package-lock.json
 ├── public/
 │   ├── index.html
 │   ├── styles.css
@@ -156,63 +188,86 @@ node server.js
 │   └── previews/
 ├── templates/
 ├── input/
-├── output/  # ← Artes geradas ficam aqui
+├── output/                # Artes geradas
 └── node_modules/
 ```
 
-## 🔒 Segurança
+## CLI (opcional)
+
+Além da interface web, é possível usar o CLI para gerar uma arte diretamente pelo terminal:
+
+```bash
+npm run cli
+```
+
+O CLI (`cli.js`) vai:
+
+- Perguntar a URL da notícia
+- Extrair título, subtítulo e imagem
+- Permitir escolher o template/página
+- Perguntar logo/tag e campos adicionais
+- Gerar a arte em PNG na pasta configurada (`OUTPUT_DIR`)
+
+## Segurança
 
 ### 1. Firewall
+
 ```bash
 # Permitir apenas a porta 3000
 ufw allow 3000
 ```
 
 ### 2. Permissões
+
 ```bash
 # Apenas o usuário do servidor web
 chown -R www-data:www-data /var/www/artes/
 chmod -R 755 /var/www/artes/
 ```
 
-### 3. HTTPS (Recomendado)
-Use um proxy reverso com SSL (Let's Encrypt, Cloudflare, etc.)
+### 3. HTTPS (recomendado)
 
-## 🐛 Troubleshooting
+Use um proxy reverso com SSL (Let's Encrypt, Cloudflare, etc.).
+
+## Troubleshooting
 
 ### Problema: "Port 3000 already in use"
+
 ```bash
 # Encontrar processo usando a porta
-lsof -i :3000  # Linux
+lsof -i :3000          # Linux
 netstat -ano | findstr :3000  # Windows
 
 # Parar processo ou usar outra porta
-PORT=3001 node server.js
+PORT=3001 node src/server.js
 ```
 
 ### Problema: "Permission denied"
+
 ```bash
-# Dar permissões
-chmod +x server.js
-chmod +x start.sh
+# Ajustar permissões
+chmod -R 755 /var/www/artes/
 ```
 
 ### Problema: "Cannot find module"
+
 ```bash
 # Reinstalar dependências
 rm -rf node_modules package-lock.json
 npm install
 ```
 
-## 📞 Suporte
+## Suporte e Verificações
 
-- **Logs**: Verifique o console do servidor
-- **Artes**: Verifique a pasta `output/`
-- **Templates**: Verifique a pasta `templates/`
-- **Uploads**: Verifique a pasta `input/`
+- **Logs de execução**: verifique o console onde o Node está rodando.
+- **Artes geradas**: confira a pasta `output/`.
+- **Templates**: veja a pasta `templates/`.
+- **Uploads locais**: pasta `input/`.
 
-## 🎯 Acesso Final
+## Acesso Final
 
-Após a configuração, todos na empresa poderão acessar:
-- **Interface**: `http://servidor:3000`
-- **Downloads**: `http://servidor:3000/artes/output/`
+Depois de configurado:
+
+- Interface: `http://servidor:3000`
+- Downloads de artes: `http://servidor:3000/artes/output/` (ou a rota configurada em `PUBLIC_OUTPUT_DIR`)
+
