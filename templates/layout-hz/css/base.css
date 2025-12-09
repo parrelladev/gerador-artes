@@ -43,7 +43,7 @@ body {
     /* espaçamentos */
     --pad-x: clamp(42px, 7vw, 120px);
     --pad-y: clamp(32px, 7vh, 88px);
-    --logo-size: clamp(60px, 9vw, 90px);
+    --logo-size: 200px;
     --tag-gap: clamp(28px, 5vh, 60px);
 }
 
