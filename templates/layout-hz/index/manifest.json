@@ -2,7 +2,7 @@
   "name": "Layout HZ",
   "dimensions": { "width": 1080, "height": 1920 },
   "logoField": "logo",
-  "defaultLogo": "logo-hz.svg",
+  "defaultLogo": "logo-hz.png",
   "bindings": [
     { "selector": "#bg", "type": "image", "field": "resolvedBg", "required": true },
     { "selector": "#logo", "type": "logo", "field": "resolvedLogo", "required": true },
