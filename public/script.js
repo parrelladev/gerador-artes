@@ -72,6 +72,7 @@ const storyTemplates = [
     id: 'se-cuida',
     name: 'HZ - Se Cuida',
     group: 'Especiais',
+    status: 'construction',
     preview: 'previews/stories/Marca-Se-Cuida.png',
     themes: []
   },
