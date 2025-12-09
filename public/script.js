@@ -41,6 +41,7 @@ const storyTemplates = [
     id: 'colunistas',
     name: 'A Gazeta - Colunistas',
     group: 'Especiais',
+    status: 'construction',
     preview: 'previews/stories/Marca-A-Gazeta-Black.png',
     themes: []
   },
@@ -48,6 +49,7 @@ const storyTemplates = [
     id: 'opiniao',
     name: 'A Gazeta - Opiniao',
     group: 'Especiais',
+    status: 'construction',
     preview: 'previews/stories/Marca-A-Gazeta-Black.png',
     themes: []
   },
@@ -55,6 +57,7 @@ const storyTemplates = [
     id: 'layout-bbc',
     name: 'BBC News',
     group: 'Especiais',
+    status: 'construction',
     preview: 'previews/stories/Marca-BBC.png',
     themes: []
   },
@@ -215,6 +218,10 @@ function renderTemplateCards() {
         : `<span class="template-meta">${template.themes.length} temas</span>`)
       : '';
 
+    const statusPill = template.status === 'construction'
+      ? '<span class="template-pill template-pill-warning">Em construção</span>'
+      : '';
+
     card.innerHTML = `
       <div class="template-preview">
         <img src="${template.preview}" alt="${template.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -224,6 +231,7 @@ function renderTemplateCards() {
       </div>
       <div class="template-info">
         <span class="template-pill">${template.group}</span>
+        ${statusPill}
         <p class="template-label">${template.name}</p>
         ${themeInfo}
       </div>

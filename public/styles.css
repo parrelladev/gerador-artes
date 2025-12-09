@@ -23,8 +23,17 @@ body {
 /* Header */
 .header {
     text-align: center;
-    margin-bottom: 60px;
-    color: white;
+    margin-bottom: 40px;
+    /* tira o color: white; ou coloca um fundo colorido */
+    /* background: #619ec8;  opcional, se quiser um fundo */
+    /* padding: 20px 0;      opcional, pra dar altura */
+}
+
+.header .logo {
+    max-width: 270px;  /* ajusta o tamanho do logo */
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
 
 .header h1 {
@@ -187,7 +196,11 @@ body {
     text-transform: uppercase;
     background: #eff6ff;
     color: #1d4ed8;
-    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.25);
+}
+
+.template-pill-warning {
+    background: #fac012;
+    color: #000;
 }
 
 .template-label {
