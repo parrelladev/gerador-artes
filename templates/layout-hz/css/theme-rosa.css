@@ -1,6 +1,12 @@
-html {
-  --brand-bg: #0F172A;
-  --brand-fg: #F8FAFC;
-  --brand-accent: #9333EA;
-  --brand-overlay-angle: 135deg;
+:root {
+  /* cores principais */
+  --bg-top: #ff0053;      /* faixa rosa de cima */
+  --bg-bottom: #f3f3f3;   /* fundo claro da parte de texto */
+  --ink: #101820;         /* texto principal */
+  --muted: #4b5861;       /* texto “suave” / subtítulo */
+
+  /* chapéu */
+  --tag-bg: #619ec8;      /* azul da etiqueta */
+  --tag-ink: #ffffff;
+  --tag-shadow: #1f1f20;  /* sombra chapada da etiqueta */
 }

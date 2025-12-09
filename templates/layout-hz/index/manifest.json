@@ -1,8 +1,8 @@
 {
-  "name": "Layout HZ - index",
+  "name": "Layout HZ",
   "dimensions": { "width": 1080, "height": 1920 },
   "logoField": "logo",
-  "defaultLogo": "logo-a-gazeta.svg",
+  "defaultLogo": "logo-hz.svg",
   "bindings": [
     { "selector": "#bg", "type": "image", "field": "resolvedBg", "required": true },
     { "selector": "#logo", "type": "logo", "field": "resolvedLogo", "required": true },
