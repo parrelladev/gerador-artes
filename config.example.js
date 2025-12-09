@@ -1,4 +1,4 @@
-// Configura??es do Gerador de Artes
+// Configurações do Maker
 // Copie este arquivo para config.js e ajuste conforme necess?rio.
 // PORT, OUTPUT_DIR e PUBLIC_OUTPUT_DIR tamb?m podem ser definidos via ambiente.
 

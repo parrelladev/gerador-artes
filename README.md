@@ -1,63 +1,233 @@
 # Gerador de Artes
 
-Ferramenta Node.js para automatizar artes jornalisticas a partir de HTML/CSS. A base usa manifests por pagina, servicos desacoplados e evita arquivos temporarios.
+Ferramenta Node.js para gerar imagens PNG a partir de HTML/CSS e metadados de notícias.  
+O sistema recebe dados (título, subtítulo, imagem, logo etc.), aplica em templates versionados com manifests por página e usa um navegador headless (Puppeteer/Chromium) rodando em segundo plano para renderizar a arte como imagem.
 
-## Como usar (rapido)
-- Instale dependencias: `npm install`.
-- Configure (opcional): `npm run deploy` gera `config.js` (ou copie `config.example.js`). Variaveis `PORT`, `OUTPUT_DIR`, `PUBLIC_OUTPUT_DIR` sempre prevalecem.
-- Servidor/API: `npm start` (ou `npm run dev`).
+---
 
-Rotas expostas:
-- `POST /api/generate` com `{ artes: [...] }` -> `{ files, logs }` (409 se gerando).
-- `GET /api/templates` e `GET /api/templates/:template/:page` -> dados do manifest/HTML/CSS.
-- `POST /api/news/extract` -> `{ h1, h2, bg }` via scraper.
+## 1. Começando rápido
 
-## Estrutura e responsabilidades
-- `src/server.js` + `src/routes/*`: API enxuta (generate/templates/news).
-- `src/services/generator.js`: valida artes via manifest, resolve assets (bg local/remoto, logo com cache), controla concorrencia e renderiza com Puppeteer.
-- `src/services/newsScraper.js`: extrai titulo/subtitulo/imagem.
-- `src/lib/{binding,manifestLoader}.js`: aplica bindings no DOM e carrega manifests/templates.
-- `templates/<template>/<page>/`: `index.html` + `manifest.json` + pastas de CSS/fonts compartilhadas no nivel do template.
-- `input/`: assets locais (backgrounds/logos). `output/`: PNGs gerados.
-- **Removido**: `template-config.js` e servidor raiz antigo; manifests são a unica fonte de configuracao de templates.
+### Requisitos
+- Node.js 16+  
+- npm
 
-## Criar ou ajustar templates
-1) Estrutura: crie `templates/<template>/<page>/index.html`. CSS/fonts permanecem em `templates/<template>/css` (ou subpastas) referenciados com `../css/...` a partir do `index.html`.
-2) Manifesto em `templates/<template>/<page>/manifest.json`:
+### Passo a passo
+1. Instalar dependências:
+   ```bash
+   npm install
+   ```
+2. (Opcional) Gerar `config.js` interativo:
+   ```bash
+   npm run deploy
+   # ou copie config.example.js para config.js
+   ```
+3. Subir o servidor em modo desenvolvimento:
+   ```bash
+   npm run dev
+   # ou
+   npm start
+   ```
+4. Acessar no navegador:
+   - `http://localhost:3000`
+
+> Para deploy em servidor (produção), veja `DEPLOY.md`.
+
+---
+
+## 2. Configuração
+
+A aplicação lê variáveis de ambiente e/ou `config.js`.
+
+- `PORT`: porta do servidor (padrão `3000`)
+- `OUTPUT_DIR`: pasta onde os PNGs são salvos
+- `PUBLIC_OUTPUT_DIR`: caminho público para servir os arquivos gerados
+
+Prioridade:
+1. Variáveis de ambiente (`PORT`, `OUTPUT_DIR`, `PUBLIC_OUTPUT_DIR`)
+2. Valores em `config.js`
+3. Defaults internos
+
+Para gerar `config.js`:
+```bash
+npm run deploy
 ```
+
+---
+
+## 3. Uso via API
+
+Servidor expõe uma API REST simples.
+
+### `POST /api/generate`
+Gera artes com base em templates cadastrados **salvando os PNGs em disco** (pasta `OUTPUT_DIR`).
+
+Body (exemplo):
+```json
 {
-  "dimensions": { "width": 1080, "height": 1920 },
-  "logoField": "logo",           // nome do campo exigido
-  "defaultLogo": "logo-a-gazeta.svg",     // opcional (fallback)
-  "bindings": [
-    { "selector": "#bg", "type": "image", "field": "resolvedBg", "required": true },
-    { "selector": "#logo", "type": "logo", "field": "resolvedLogo", "required": true },
-    { "selector": "#title", "type": "text", "field": "h1" },
-    { "selector": "#subtitle", "type": "text", "field": "h2" },
-    { "selector": "#tag", "type": "text", "field": "tag" }
-  ],
-  "cssVars": [],
-  "classes": [],
-  "attributes": []
+  "artes": [
+    {
+      "template": "nome-do-template",
+      "page": "slug-da-pagina",
+      "bg": "https://url.da.imagem/bg.jpg",
+      "logo": "logo-a-gazeta.svg",
+      "h1": "Título da matéria",
+      "h2": "Subtítulo",
+      "tag": "Política"
+    }
+  ]
 }
 ```
-   - Tipos de binding: `text`, `html`, `image`, `logo`, `attribute` (`name`/`attribute`), `class` (`mode` add/replace/toggle), `style` (`property`), `dataset` (`datasetKey`).
-   - `cssVars`, `classes`, `attributes` usam o mesmo esquema de `field`/`value`, `selector` e `required`.
-   - Use `logoField` para diferenciar logos; `defaultLogo` aplica fallback se o campo nao vier.
-3) Validacao: o gerador deriva o schema a partir do manifest (exige `bg` e o `logoField`). Erros retornam com `[erro] template/pagina` nos logs.
-4) Assets: backgrounds/logos podem ser URL ou arquivos em `input/`. PNG/JPEG/WEBP para bg; logo aceita SVG inline ou imagens (extensoes testadas em cascata quando sem sufixo).
 
-## Fluxos de geracao
-- API: envie `artes` para `/api/generate`. Se alguma falhar, `logs` apontam o motivo; se nenhuma for bem-sucedida retorna 500.
-- CLI: coleta URL, sugere titulo/subtitulo/bg via scraper, pergunta pelo `logoField` definido no manifest e executa `generator.run` em memoria, exibindo caminhos salvos em `OUTPUT_DIR`.
+Resposta (exemplo):
+```json
+{
+  "files": [
+    "/caminho/para/output/arquivo.png"
+  ],
+  "logs": [
+    "[ok] template/pagina"
+  ]
+}
+```
 
-## Manutencao e operacao
-- Confiabilidade: `generator.run` bloqueia concorrencia; chamadas simultaneas recebem 409.
-- Logs: cada arte retorna `[ok]/[erro] template/pagina` com detalhe tecnico separado.
-- Limpeza: esvazie `output/` conforme a politica interna; mantenha `input/` apenas com assets relevantes.
-- Testes: `npm test` (unitarios de assets/validacao + integracao gerando PNG real).
+Comportamento:
+- 409 se já houver geração em andamento.
+- 500 se todas as artes falharem (detalhes em `logs`). Os arquivos gerados (quando houver) ficam em `OUTPUT_DIR`.
 
-## Dicas rapidas para novos devs
-- Sempre criar/editar manifests junto ao HTML da pagina.
-- Para temas, carregue CSS via atributo `href` no manifest (`attributes` em `#themeStylesheet`) e use `parameters.theme` para alternar.
-- Nunca grave em `input/data.json`; use API/CLI em memoria.
+### `POST /api/generate/download`
+Gera **uma** arte e devolve o PNG direto na resposta HTTP (sem persistir o arquivo).
+
+Body (exemplo):
+```json
+{
+  "arte": {
+    "template": "nome-do-template",
+    "page": "slug-da-pagina",
+    "bg": "https://url.da.imagem/bg.jpg",
+    "logo": "logo-a-gazeta.svg",
+    "h1": "Título da matéria",
+    "h2": "Subtítulo"
+  }
+}
+```
+
+Resposta:
+- `Content-Type: image/png`
+- `Content-Disposition: attachment; filename="nome-gerado.png"`
+
+Esse endpoint é útil para fluxos de download imediato (por exemplo, integração com outra ferramenta que faz upload do PNG para redes sociais).
+
+### `GET /api/templates`
+Lista templates/páginas disponíveis (baseado nos manifests).
+
+### `GET /api/templates/:template/:page`
+Retorna detalhes do manifest, HTML e CSS daquela página.
+
+### `POST /api/news/extract`
+Extrai dados de uma notícia a partir de uma URL (usado para montar posts a partir de matérias).
+
+Body:
+```json
+{ "url": "https://exemplo.com/materia" }
+```
+
+Resposta (exemplo):
+```json
+{
+  "h1": "Título",
+  "h2": "Subtítulo",
+  "bg": "https://imagem-da-materia.jpg"
+}
+```
+
+Esses campos podem ser usados diretamente no payload de `/api/generate` ou `/api/generate/download` para transformar a notícia em arte/post para redes sociais.
+
+---
+
+## 4. Como funciona por baixo dos panos
+
+Fluxo simplificado:
+- A API valida o payload recebido contra o `manifest.json` da página (campos obrigatórios, tipos etc.).
+- O serviço de templates carrega o `index.html` e os CSS do template.
+- O serviço de bindings aplica os dados (título, subtítulo, imagem, logo, tags) nos elementos HTML, conforme o manifest.
+- O `generator.js` inicia um navegador headless via Puppeteer (Chromium em modo oculto), abre a página já montada e gera um screenshot no tamanho configurado, salvando em PNG.
+
+Implica em:
+- O processo Node roda um navegador em segundo plano durante a geração.
+- Servidores precisam suportar a execução do Chromium headless (bibliotecas de sistema padrão em Linux/Windows).
+
+---
+
+## 5. Templates e manifests
+
+Cada template é organizado por pasta, com HTML/CSS/manifest.
+
+Estrutura básica:
+```text
+templates/
+  <template>/
+    css/              # CSS e fontes compartilhadas
+    fonts/            # (opcional)
+    <page>/
+      index.html      # layout específico da página
+      manifest.json   # definição de campos/bindings
+```
+
+No `index.html`, o CSS do template é referenciado, por exemplo:
+```html
+<link rel="stylesheet" href="../css/base.css">
+```
+
+O `manifest.json` define:
+- Dimensões da arte (`width`, `height`)
+- Campo de logo obrigatório (`logoField`) e fallback (`defaultLogo`)
+- Bindings de elementos (`text`, `html`, `image`, `logo`, `class`, `style`, `dataset`, `attribute`)
+
+Erros de binding/validação aparecem nos logs da geração com o formato:
+- `[erro] template/pagina`
+
+> Para uma visão prática dos templates de stories e seus previews, veja `public/previews/stories/README.md`.
+
+---
+
+## 6. Estrutura de pastas (resumo)
+
+```text
+src/
+  server.js          # servidor Express e rotas
+  routes/            # /api/generate, /api/templates, /api/news
+  services/
+    generator.js     # orquestra geração, valida, resolve assets e chama Puppeteer
+    newsScraper.js   # extrai título/subtítulo/imagem de notícias
+  lib/
+    binding.js       # aplica bindings no DOM
+    manifestLoader.js# carrega manifests/templates
+
+templates/           # HTML/CSS/fonts + manifests por página
+input/               # assets locais (backgrounds/logos)
+output/              # PNGs gerados
+public/              # interface web, previews etc.
+config.example.js    # exemplo de configuração
+config.js            # configuração ativa (opcional)
+```
+
+---
+
+## 7. Operação e manutenção
+
+- Concorrência: `generator.run` evita execuções simultâneas; novas chamadas recebem 409 se houver job em andamento.
+- Limpeza: esvazie periodicamente a pasta `output/` conforme política interna.
+- Logs: erros e avisos são retornados na resposta da API (`logs`) e no console do servidor.
+- Testes:
+  ```bash
+  npm test
+  ```
+
+---
+
+## 8. Documentação complementar
+
+Para detalhes específicos:
+- `DEPLOY.md` — passo a passo de deploy em Linux/Windows, exemplos de proxy (Nginx/Apache), variáveis de ambiente e troubleshooting em produção.
+- `public/previews/stories/README.md` — lista de templates de stories, slugs e nomes de arquivo de preview (`.png`) para exibir as miniaturas na interface.
+
