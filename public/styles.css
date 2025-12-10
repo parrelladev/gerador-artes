@@ -318,6 +318,19 @@ body {
     font-size: 1rem;
 }
 
+.form-group.required {
+    border: 1px solid #cfe0ff;
+    background: #f7faff;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.required-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .form-group label:has(+ input[required])::after {
     content: ' *';
     color: #e53e3e;
@@ -375,7 +388,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #3b5fe5, #fd2757);
     color: white;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
