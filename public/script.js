@@ -342,7 +342,7 @@ async function loadManifest(template, page = 'index') {
 
 async function generateArt() {
   const url = newsUrl.value.trim();
-  const tag = customTag.value.trim();
+  const manualTag = customTag.value.trim();
   const imageOverride = customImageUrl.value.trim();
 
   if (!currentTemplate) {
@@ -362,12 +362,6 @@ async function generateArt() {
     return;
   }
 
-  if (!tag) {
-    showToast('Por favor, insira a categoria da noticia', 'error');
-    customTag.focus();
-    return;
-  }
-
   if (imageOverride && !isValidUrl(imageOverride)) {
     showToast('Informe um link de imagem valido (http ou https).', 'error');
     customImageUrl.focus();
@@ -382,13 +376,38 @@ async function generateArt() {
     const defaultLogo = manifestData.manifest?.defaultLogo || 'logo-a-gazeta';
     const pageName = manifestData.page || 'index';
 
+    const extractedData = (await extractNewsData(url)) || {};
+    const extractedChapeu = extractedData.chapeu || null;
+
+    if (!manualTag && extractedChapeu) {
+      customTag.value = extractedChapeu;
+    }
+
+    const resolvedTitle = customTitle.value.trim() || extractedData.h1 || null;
+    const resolvedSubtitle = customSubtitle.value.trim() || extractedData.h2 || null;
+    const resolvedChapeu = customTag.value.trim() || extractedChapeu || '';
+    const effectiveBg = imageOverride || extractedData.bg || null;
+
+    if (!resolvedChapeu) {
+      showToast('Por favor, insira a categoria da notícia', 'error');
+      customTag.focus();
+      return;
+    }
+
+    if (!effectiveBg) {
+      showToast('Nao encontramos uma imagem valida. Informe um link de imagem ou tente novamente.', 'error');
+      customImageUrl.focus();
+      return;
+    }
+
     const artData = {
       template: currentTemplate,
       page: pageName,
-      h1: customTitle.value.trim() || null,
-      h2: customSubtitle.value.trim() || null,
-      tag: tag,
-      bg: null,
+      h1: resolvedTitle,
+      h2: resolvedSubtitle,
+      tag: resolvedChapeu,
+      chapeu: extractedChapeu,
+      bg: effectiveBg,
       sourceUrl: url
     };
 
@@ -400,23 +419,6 @@ async function generateArt() {
       artData.parameters = parameters;
     }
 
-    const extractedData = await extractNewsData(url);
-
-    if (extractedData.h1 && !customTitle.value.trim()) {
-      artData.h1 = extractedData.h1;
-    }
-    if (extractedData.h2 && !customSubtitle.value.trim()) {
-      artData.h2 = extractedData.h2;
-    }
-    const effectiveBg = imageOverride || extractedData.bg || null;
-
-    if (!effectiveBg) {
-      showToast('Nao encontramos uma imagem valida. Informe um link de imagem ou tente novamente.', 'error');
-      customImageUrl.focus();
-      return;
-    }
-
-    artData.bg = effectiveBg;
     artData[logoField] = defaultLogo;
 
     await downloadGeneratedArtwork(artData);
