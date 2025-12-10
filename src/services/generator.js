@@ -51,6 +51,7 @@ function buildArteSchema(manifest) {
       h1: z.string().optional(),
       h2: z.string().optional(),
       tag: z.string().optional(),
+      chapeu: z.string().nullable().optional(),
       text: z.string().optional(),
       bg: z.string().min(1, 'bg é obrigatório'),
       parameters: z.record(z.any()).optional(),
