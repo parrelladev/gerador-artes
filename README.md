@@ -136,7 +136,8 @@ Resposta (exemplo):
 {
   "h1": "Título",
   "h2": "Subtítulo",
-  "bg": "https://imagem-da-materia.jpg"
+  "bg": "https://imagem-da-materia.jpg",
+  "chapeu": "Categoria ou chapeu da materia (null quando ausente)"
 }
 ```
 
@@ -198,7 +199,7 @@ src/
   routes/            # /api/generate, /api/templates, /api/news
   services/
     generator.js     # orquestra geração, valida, resolve assets e chama Puppeteer
-    newsScraper.js   # extrai título/subtítulo/imagem de notícias
+    newsScraper.js   # extrai título/subtítulo/imagem/chapéu de notícias
   lib/
     binding.js       # aplica bindings no DOM
     manifestLoader.js# carrega manifests/templates
@@ -230,4 +231,3 @@ config.js            # configuração ativa (opcional)
 Para detalhes específicos:
 - `DEPLOY.md` — passo a passo de deploy em Linux/Windows, exemplos de proxy (Nginx/Apache), variáveis de ambiente e troubleshooting em produção.
 - `public/previews/stories/README.md` — lista de templates de stories, slugs e nomes de arquivo de preview (`.png`) para exibir as miniaturas na interface.
-
