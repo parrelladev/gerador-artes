@@ -11,8 +11,14 @@ router.post('/extract', async (req, res) => {
   }
 
   try {
-    const data = await newsScraper.fetch(url);
-    return res.json(data);
+    const { h1, h2, bg, chapeu } = await newsScraper.fetch(url);
+
+    if (chapeu) {
+      // eslint-disable-next-line no-console
+      console.debug('[scraper] Chapeu extraido:', chapeu);
+    }
+
+    return res.json({ h1, h2, bg, chapeu });
   } catch (error) {
     return res.status(500).json({
       error: 'Erro ao extrair dados da notícia',
