@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Artes - Instagram</title>
+    <title>Maker</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -33,58 +33,47 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label for="newsUrl">Link da Notícia:</label>
-                        <input type="url" id="newsUrl" placeholder="Cole aqui o link da notícia...">
-                    </div>
-                    <div class="form-group">
-                        <label for="customTitle">Título Personalizado (opcional):</label>
-                        <input type="text" id="customTitle" placeholder="Deixe vazio para usar o título da notícia">
-                    </div>
-                    <div class="form-group">
-                        <label for="customSubtitle">Subtítulo Personalizado (opcional):</label>
-                        <input type="text" id="customSubtitle"
-                            placeholder="Deixe vazio para usar o subtítulo da notícia">
-                    </div>
-                    <div class="form-group">
-                        <label for="customImageUrl">Imagem personalizada (opcional):</label>
-                        <input type="url" id="customImageUrl"
-                            placeholder="Cole um link de imagem para substituir a foto automatica">
-                        <div class="form-help">Quando preenchido, usamos esse link no lugar da imagem padrão.</div>
-                    </div>
 
-                    <div class="form-group" id="themeWrapper" style="display: none;">
-                        <label for="customTheme">Tema</label>
-                        <select id="customTheme"></select>
+                    <div class="form-group required" id="themeWrapper" style="display: none;">
+                        <label for="customTheme" class="required-label">
+                            <span>Tema</span>
+                        </label>
+                        <select id="customTheme" required></select>
                         <div class="form-help">Altere apenas as cores do layout escolhido.</div>
                     </div>
+                    <div class="form-group required">
+                        <label for="newsUrl" class="required-label">
+                            <span>Link da Noticia</span>
+                        </label>
+                        <input type="url" id="newsUrl" placeholder="Cole aqui o link da noticia..." required>
+                    </div>
 
                     <div class="form-group">
-                        <label for="customTag">Tag/Categoria *</label>
-                        <input type="text" id="customTag" placeholder="Ex: Acidente, Política, Esporte, etc." required
-                            list="categorySuggestions">
-                        <datalist id="categorySuggestions">
-                            <option value="Acidente">
-                            <option value="Política">
-                            <option value="Esporte">
-                            <option value="Economia">
-                            <option value="Saúde">
-                            <option value="Educação">
-                            <option value="Tecnologia">
-                            <option value="Meio Ambiente">
-                            <option value="Cultura">
-                            <option value="Trânsito">
-                            <option value="Urgente">
-                            <option value="Especial">
-                        </datalist>
-                        <div class="form-help">Digite a categoria da notícia</div>
+                        <label for="customTag">Chapéu manual</label>
+                        <input type="text" id="customTag" placeholder="Deixe vazio para usar o chapeu da noticia">
                     </div>
+
+                    <div class="form-group">
+                        <label for="customTitle">Titulo manual:</label>
+                        <input type="text" id="customTitle" placeholder="Deixe vazio para usar o titulo da noticia">
+                    </div>
+                    <div class="form-group">
+                        <label for="customSubtitle">Subtitulo manual:</label>
+                        <input type="text" id="customSubtitle"
+                            placeholder="Deixe vazio para usar o subtitulo da noticia">
+                    </div>
+                    <div class="form-group">
+                        <label for="customImageUrl">Imagem manual:</label>
+                        <input type="url" id="customImageUrl"
+                            placeholder="Cole um link de imagem para substituir a foto automatica">
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
                     <button class="btn btn-primary" id="generateBtn">
                         <i class="fas fa-magic"></i>
-                        Gerar Arte
+                        Criar
                     </button>
                 </div>
             </div>
@@ -94,7 +83,7 @@
         <div class="loading-overlay" id="loadingOverlay">
             <div class="loading-content">
                 <i class="fas fa-spinner fa-spin"></i>
-                <p>Gerando sua arte...</p>
+                <p>Criando sua arte...</p>
             </div>
         </div>
 
