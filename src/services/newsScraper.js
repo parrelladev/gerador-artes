@@ -37,10 +37,14 @@ async function fetch(url) {
     $('img').first().attr('src') ||
     null;
 
+  const kickerEl = $('label.text-tw-theme-box-kicker-default[id^="kicker-"]').first();
+  const chapeu = kickerEl.text() || null;
+
   return {
     h1: cleanText(h1, 120),
     h2: cleanText(h2, 220),
     bg: cleanText(bg),
+    chapeu: cleanText(chapeu, 80),
   };
 }
 
