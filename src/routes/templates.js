@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { listTemplates, loadManifest } = require('../lib/manifestLoader');
+const { resolveLogoAsset } = require('../modules/generation/assetResolver');
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get('/', (req, res) => {
   res.json(templates);
 });
 
-router.get('/:template/:page', (req, res) => {
+router.get('/:template/:page', async (req, res) => {
   try {
     const { template, page } = req.params;
     const manifestInfo = loadManifest(template, page);
@@ -43,16 +44,44 @@ router.get('/:template/:page', (req, res) => {
       ...readCssFrom(path.join(manifestInfo.pageDir)),
     ];
 
+    const manifest = manifestInfo.manifest || {};
+    const defaultLogo = manifest.defaultLogo || null;
+    let resolvedLogo = null;
+
+    if (defaultLogo) {
+      try {
+        const logoAsset = await resolveLogoAsset(defaultLogo, manifest.logoAlt);
+
+        if (logoAsset) {
+          if (logoAsset.kind === 'inline-svg') {
+            resolvedLogo = {
+              kind: 'inline-svg',
+              markup: logoAsset.markup,
+            };
+          } else if (logoAsset.kind === 'image') {
+            const isRemote = /^https?:\/\//i.test(defaultLogo);
+            resolvedLogo = {
+              kind: 'image',
+              src: isRemote ? logoAsset.src : `/input/${defaultLogo}`,
+            };
+          }
+        }
+      } catch (e) {
+        resolvedLogo = null;
+      }
+    }
+
     res.json({
       template,
       page,
-      manifest: manifestInfo.manifest,
+      manifest,
       html,
       css: cssFiles,
+      resolvedLogo,
     });
   } catch (error) {
     res.status(404).json({
-      error: 'Template não encontrado',
+      error: 'Template nǜo encontrado',
       detail: error.message,
     });
   }

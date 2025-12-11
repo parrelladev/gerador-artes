@@ -721,21 +721,35 @@ function buildPreviewData(manifestData) {
 
   data[logoField] = defaultLogo;
 
-  // resolve logo para o preview, usando as mesmas convenções do generator:
-  // - se for URL absoluta (http/https), usa direto
-  // - se for um nome de arquivo (logo-a-gazeta.svg, logo-hz.png etc.), aponta para /input/<arquivo>
-  let logoSrc = null;
-  if (defaultLogo) {
-    if (/^https?:\/\//i.test(defaultLogo)) {
-      logoSrc = defaultLogo;
-    } else {
-      logoSrc = `/input/${defaultLogo}`;
-    }
-  }
+  const manifestResolvedLogo = manifestData.resolvedLogo || null;
 
-  data.resolvedLogo = logoSrc
-    ? { kind: 'image', src: logoSrc }
-    : null;
+  if (manifestResolvedLogo && manifestResolvedLogo.kind === 'inline-svg' && manifestResolvedLogo.markup) {
+    data.resolvedLogo = {
+      kind: 'inline-svg',
+      markup: manifestResolvedLogo.markup
+    };
+  } else if (manifestResolvedLogo && manifestResolvedLogo.kind === 'image' && manifestResolvedLogo.src) {
+    data.resolvedLogo = {
+      kind: 'image',
+      src: manifestResolvedLogo.src
+    };
+  } else {
+    // fallback antigo: resolve logo para o preview, usando as mesmas convenções do generator:
+    // - se for URL absoluta (http/https), usa direto
+    // - se for um nome de arquivo (logo-a-gazeta.svg, logo-hz.png etc.), aponta para /input/<arquivo>
+    let logoSrc = null;
+    if (defaultLogo) {
+      if (/^https?:\/\//i.test(defaultLogo)) {
+        logoSrc = defaultLogo;
+      } else {
+        logoSrc = `/input/${defaultLogo}`;
+      }
+    }
+
+    data.resolvedLogo = logoSrc
+      ? { kind: 'image', src: logoSrc }
+      : null;
+  }
 
   return data;
 }
