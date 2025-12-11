@@ -47,7 +47,7 @@ const storyTemplates = [
   },
   {
     id: 'opiniao',
-    name: 'A Gazeta - Opiniao',
+    name: 'A Gazeta - Opinião',
     group: 'Especiais',
     status: 'construction',
     preview: 'previews/stories/Marca-A-Gazeta-Black.png',
@@ -94,6 +94,12 @@ let currentTemplateMeta = null;
 let currentTheme = null;
 let activeStoryGroup = storyGroups[0] || null;
 
+// Estado da tela de geração
+let lastNewsData = null;
+let lastNewsUrl = null;
+let currentManifestData = null;
+let previewInitializedTemplate = null;
+
 const modal = document.getElementById('templateModal');
 const closeModal = document.getElementById('closeModal');
 const cancelBtn = document.getElementById('cancelBtn');
@@ -110,6 +116,20 @@ const customTag = document.getElementById('customTag');
 const modalTitle = document.getElementById('modalTitle');
 const storyCategoryTabs = document.getElementById('storyCategoryTabs');
 const storyTemplateGrid = document.getElementById('storyTemplateGrid');
+const fetchDataBtn = document.getElementById('fetchDataBtn');
+const previewFrame = document.getElementById('previewFrame');
+const previewPlaceholder = document.getElementById('previewPlaceholder');
+
+function resizePreviewFrame() {
+  const wrapper = document.querySelector('.preview-frame-wrapper');
+  if (!wrapper || !previewFrame) return;
+
+  const wrapperWidth = wrapper.clientWidth;
+  if (!wrapperWidth) return;
+
+  const scale = wrapperWidth / 1080; // 1080 = largura real do canvas
+  previewFrame.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   if (themeWrapper) {
@@ -119,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCategoryTabs();
   renderTemplateCards();
   setupEventListeners();
+  resizePreviewFrame();
 });
 
 function setupEventListeners() {
@@ -167,20 +188,51 @@ function setupEventListeners() {
     }
   });
 
-  generateBtn.addEventListener('click', generateArt);
+  generateBtn.addEventListener('click', generateArtWithPreviewFlow);
 
   newsUrl.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
-      generateArt();
+      handleFetchNewsAndPreview();
     }
   });
+
+  if (fetchDataBtn) {
+    fetchDataBtn.addEventListener('click', handleFetchNewsAndPreview);
+  }
+
+  if (customTitle) {
+    customTitle.addEventListener('input', () => {
+      updatePreview().catch(() => {});
+    });
+  }
+
+  if (customSubtitle) {
+    customSubtitle.addEventListener('input', () => {
+      updatePreview().catch(() => {});
+    });
+  }
+
+  if (customTag) {
+    customTag.addEventListener('input', () => {
+      updatePreview().catch(() => {});
+    });
+  }
+
+  if (customImageUrl) {
+    customImageUrl.addEventListener('input', () => {
+      updatePreview().catch(() => {});
+    });
+  }
 
   if (customTheme) {
     customTheme.addEventListener('change', (event) => {
       currentTheme = event.target.value || null;
       updateModalTitle();
+      updatePreview().catch(() => {});
     });
   }
+
+  window.addEventListener('resize', resizePreviewFrame);
 }
 
 function renderCategoryTabs() {
@@ -273,6 +325,10 @@ function openModal(templateKey) {
 
   currentTemplateMeta = templateData || null;
   currentTemplate = templateData ? templateData.id : templateKey;
+  lastNewsData = null;
+  lastNewsUrl = null;
+  currentManifestData = null;
+  previewInitializedTemplate = null;
 
   if (templateData && Array.isArray(templateData.themes) && templateData.themes.length) {
     const defaultTheme = templateData.defaultTheme || templateData.themes[0].id;
@@ -306,8 +362,21 @@ function openModal(templateKey) {
   customImageUrl.value = '';
   customTag.value = '';
 
+  if (previewFrame) {
+    const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow?.document;
+    if (frameDoc) {
+      frameDoc.open();
+      frameDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8"></head><body></body></html>');
+      frameDoc.close();
+    }
+  }
+  if (previewPlaceholder) {
+    previewPlaceholder.style.display = '';
+  }
+
   modal.classList.add('show');
   newsUrl.focus();
+  resizePreviewFrame();
 }
 
 function closeModalHandler() {
@@ -315,6 +384,10 @@ function closeModalHandler() {
   currentTemplate = null;
   currentTemplateMeta = null;
   currentTheme = null;
+  lastNewsData = null;
+  lastNewsUrl = null;
+  currentManifestData = null;
+  previewInitializedTemplate = null;
 
   if (customTheme) {
     customTheme.innerHTML = '';
@@ -332,12 +405,472 @@ async function loadManifest(template, page = 'index') {
 
   const response = await fetch(`/api/templates/${template}/${page}`);
   if (!response.ok) {
-    throw new Error('Template nao encontrado');
+    throw new Error('Template não encontrado');
   }
 
   const data = await response.json();
   manifestCache[cacheKey] = data;
   return data;
+}
+
+async function getOrExtractNewsData(url) {
+  if (lastNewsUrl === url && lastNewsData) {
+    return lastNewsData;
+  }
+
+  const data = (await extractNewsData(url)) || {};
+  lastNewsUrl = url;
+  lastNewsData = data;
+  return data;
+}
+
+// Etapa 1: busca dados da matéria e monta o preview HTML
+async function handleFetchNewsAndPreview() {
+  const url = newsUrl.value.trim();
+
+  if (!currentTemplate) {
+    showToast('Escolha um template antes de buscar os dados', 'error');
+    return;
+  }
+
+  if (!url) {
+    showToast('Por favor, insira o link da notícia', 'error');
+    newsUrl.focus();
+    return;
+  }
+
+  if (!isValidUrl(url)) {
+    showToast('Por favor, insira um link válido', 'error');
+    newsUrl.focus();
+    return;
+  }
+
+  try {
+    if (fetchDataBtn) {
+      fetchDataBtn.disabled = true;
+    }
+
+    const extractedData = await getOrExtractNewsData(url);
+
+    if (!extractedData || (!extractedData.h1 && !extractedData.h2 && !extractedData.bg)) {
+      showToast('Não foi possível extrair dados desta notícia.', 'error');
+      return;
+    }
+
+    if (!customTitle.value.trim() && extractedData.h1) {
+      customTitle.value = extractedData.h1;
+    }
+    if (!customSubtitle.value.trim() && extractedData.h2) {
+      customSubtitle.value = extractedData.h2;
+    }
+    if (!customTag.value.trim() && extractedData.chapeu) {
+      customTag.value = extractedData.chapeu;
+    }
+    if (!customImageUrl.value.trim() && extractedData.bg) {
+      customImageUrl.value = extractedData.bg;
+    }
+
+    await updatePreview();
+
+    showToast('Dados da notícia carregados. Ajuste o texto se quiser.', 'success');
+  } catch (error) {
+    console.error('Erro ao buscar dados da notícia:', error);
+    showToast('Erro ao buscar dados da notícia: ' + error.message, 'error');
+  } finally {
+    if (fetchDataBtn) {
+      fetchDataBtn.disabled = false;
+    }
+  }
+}
+
+// Monta o HTML/CSS do template dentro do iframe de preview reaproveitando o manifest.
+async function ensurePreviewInitialized() {
+  if (!previewFrame || !currentTemplate) {
+    return null;
+  }
+
+  if (previewInitializedTemplate === currentTemplate && currentManifestData) {
+    return currentManifestData;
+  }
+
+  const manifestData = await loadManifest(currentTemplate, 'index');
+  currentManifestData = manifestData;
+  previewInitializedTemplate = currentTemplate;
+
+  const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+  if (!frameDoc) {
+    return manifestData;
+  }
+
+  const cssContent = Array.isArray(manifestData.css)
+    ? manifestData.css.map(file => file.content || '').join('\n')
+    : '';
+
+  const manifestJson = JSON.stringify(manifestData.manifest || {});
+
+  // Pequeno runtime de binding para o preview, baseado em src/lib/binding.js
+  const bindingScript = `
+    (function () {
+      var manifest = ${manifestJson};
+
+      // Mantém o canvas do template proporcional dentro da janela do iframe
+      var designWidth = (manifest && manifest.dimensions && manifest.dimensions.width) || 1080;
+      var designHeight = (manifest && manifest.dimensions && manifest.dimensions.height) || 1920;
+
+      function applyPreviewScale() {
+        try {
+          var vw = window.innerWidth || document.documentElement.clientWidth;
+          var vh = window.innerHeight || document.documentElement.clientHeight;
+          if (!vw || !vh) return;
+
+          var scaleX = vw / designWidth;
+          var scaleY = vh / designHeight;
+          var scale = Math.min(scaleX, scaleY);
+
+          var root = document.documentElement;
+          var body = document.body;
+
+          root.style.transformOrigin = 'top left';
+          root.style.transform = 'scale(' + scale + ')';
+          root.style.width = designWidth + 'px';
+          root.style.height = designHeight + 'px';
+
+          if (body) {
+            body.style.margin = '0';
+            body.style.padding = '0';
+            body.style.overflow = 'hidden';
+            body.style.display = 'flex';
+            body.style.alignItems = 'stretch';
+            body.style.justifyContent = 'center';
+            body.style.backgroundColor = '#000';
+          }
+        } catch (e) {
+          console.error('Erro ao aplicar escala de preview:', e);
+        }
+      }
+
+      window.addEventListener('resize', applyPreviewScale);
+      window.addEventListener('load', applyPreviewScale);
+      setTimeout(applyPreviewScale, 0);
+
+      function toClassList(value) {
+        if (Array.isArray(value)) return value.filter(Boolean);
+        if (typeof value === 'string') return value.split(/\\s+/).filter(Boolean);
+        if (value === undefined || value === null) return [];
+        return [String(value)];
+      }
+
+      function getValue(data, field, fallback) {
+        if (!field) return fallback;
+        var parts = field.split('.');
+        var acc = data;
+        for (var i = 0; i < parts.length; i++) {
+          if (acc && typeof acc === 'object' && Object.prototype.hasOwnProperty.call(acc, parts[i])) {
+            acc = acc[parts[i]];
+          } else {
+            return fallback;
+          }
+        }
+        return acc;
+      }
+
+      function applyBindings(manifest, data) {
+        data = data || {};
+        var bindings = Array.isArray(manifest.bindings) ? manifest.bindings : [];
+        var cssVars = Array.isArray(manifest.cssVars) ? manifest.cssVars : [];
+        var classes = Array.isArray(manifest.classes) ? manifest.classes : [];
+        var attributes = Array.isArray(manifest.attributes) ? manifest.attributes : [];
+
+        bindings.forEach(function (binding) {
+          if (!binding || !binding.selector) return;
+          var value = Object.prototype.hasOwnProperty.call(binding, 'value')
+            ? binding.value
+            : getValue(data, binding.field);
+          if (value === undefined || value === null) return;
+
+          var targets = Array.prototype.slice.call(document.querySelectorAll(binding.selector));
+          if (!targets.length) return;
+
+          targets.forEach(function (el) {
+            var type = binding.type || 'text';
+            if (type === 'html') {
+              el.innerHTML = String(value);
+            } else if (type === 'image') {
+              el.src = String(value);
+            } else if (type === 'logo') {
+              if (value && value.kind === 'inline-svg' && value.markup) {
+                el.innerHTML = value.markup;
+              } else if (value && value.src) {
+                if (el.tagName && el.tagName.toLowerCase() === 'img') {
+                  el.src = value.src;
+                } else {
+                  el.style.backgroundImage = 'url(' + value.src + ')';
+                }
+              }
+            } else {
+              el.textContent = String(value);
+            }
+          });
+        });
+
+        cssVars.forEach(function (entry) {
+          if (!entry || !entry.name) return;
+          var selector = entry.selector || ':root';
+          var value = Object.prototype.hasOwnProperty.call(entry, 'value')
+            ? entry.value
+            : getValue(data, entry.field);
+          if (value === undefined || value === null) return;
+          var targets = selector === ':root'
+            ? [document.documentElement]
+            : Array.prototype.slice.call(document.querySelectorAll(selector));
+          targets.forEach(function (el) {
+            el.style.setProperty(entry.name, String(value));
+          });
+        });
+
+        classes.forEach(function (entry) {
+          if (!entry || !entry.selector) return;
+          var value = Object.prototype.hasOwnProperty.call(entry, 'value')
+            ? entry.value
+            : getValue(data, entry.field);
+          if (value === undefined || value === null) return;
+          var targetList = Array.prototype.slice.call(document.querySelectorAll(entry.selector));
+          var classList = toClassList(value);
+          targetList.forEach(function (el) {
+            classList.forEach(function (cls) {
+              el.classList.add(cls);
+            });
+          });
+        });
+
+        attributes.forEach(function (entry) {
+          if (!entry || !entry.selector || !entry.name) return;
+          var value = Object.prototype.hasOwnProperty.call(entry, 'value')
+            ? entry.value
+            : getValue(data, entry.field);
+          if (value === undefined || value === null) return;
+          var targetList = Array.prototype.slice.call(document.querySelectorAll(entry.selector));
+          targetList.forEach(function (el) {
+            el.setAttribute(entry.name, String(value));
+          });
+        });
+      }
+
+      window.__updatePreview = function (data) {
+        try {
+          applyBindings(manifest, data || {});
+          applyPreviewScale();
+        } catch (err) {
+          console.error('Erro ao aplicar bindings no preview:', err);
+        }
+      };
+    })();
+  `;
+
+  const baseHref = `/templates/${manifestData.template}/${manifestData.page || 'index'}/`;
+
+  const iframeHtml = `<!DOCTYPE html>
+  <html lang="pt-BR">
+    <head>
+      <meta charset="utf-8">
+      <base href="${baseHref}">
+      <style>
+      ${cssContent}
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      </style>
+    </head>
+    <body>
+      ${manifestData.html}
+      <script>${bindingScript}<\/script>
+    </body>
+  </html>`;
+
+  frameDoc.open();
+  frameDoc.write(iframeHtml);
+  frameDoc.close();
+
+  if (previewPlaceholder) {
+    previewPlaceholder.style.display = 'none';
+  }
+
+  return manifestData;
+}
+
+function buildPreviewData(manifestData) {
+  const url = newsUrl.value.trim();
+  const hasMatchingNews = lastNewsUrl && lastNewsUrl === url && lastNewsData;
+  const extractedData = hasMatchingNews ? lastNewsData : {};
+
+  const manualTitle = customTitle.value.trim();
+  const manualSubtitle = customSubtitle.value.trim();
+  const manualTag = customTag.value.trim();
+  const manualBg = customImageUrl.value.trim();
+
+  const effectiveTitle = manualTitle || extractedData.h1 || '';
+  const effectiveSubtitle = manualSubtitle || extractedData.h2 || '';
+  const extractedChapeu = extractedData.chapeu || '';
+  const effectiveTag = manualTag || extractedChapeu || '';
+  const effectiveBg = manualBg || extractedData.bg || '';
+
+  const logoField = manifestData.manifest?.logoField || 'logo';
+  const defaultLogo = manifestData.manifest?.defaultLogo || 'logo-a-gazeta';
+
+  const themeName = currentTheme || null;
+  const themeStylesheet = themeName ? `../css/theme-${themeName}.css` : null;
+
+  const data = {
+    h1: effectiveTitle,
+    h2: effectiveSubtitle,
+    tag: effectiveTag,
+    chapeu: extractedChapeu || null,
+    bg: effectiveBg,
+    resolvedBg: effectiveBg,
+    themeName,
+    themeStylesheet
+  };
+
+  data[logoField] = defaultLogo;
+
+  // resolve logo para o preview, usando as mesmas convenções do generator:
+  // - se for URL absoluta (http/https), usa direto
+  // - se for um nome de arquivo (logo-a-gazeta.svg, logo-hz.png etc.), aponta para /input/<arquivo>
+  let logoSrc = null;
+  if (defaultLogo) {
+    if (/^https?:\/\//i.test(defaultLogo)) {
+      logoSrc = defaultLogo;
+    } else {
+      logoSrc = `/input/${defaultLogo}`;
+    }
+  }
+
+  data.resolvedLogo = logoSrc
+    ? { kind: 'image', src: logoSrc }
+    : null;
+
+  return data;
+}
+
+async function updatePreview() {
+  if (!previewFrame || !currentTemplate) {
+    return;
+  }
+
+  try {
+    const manifestData = await ensurePreviewInitialized();
+    if (!manifestData) return;
+
+    const frameWindow = previewFrame.contentWindow;
+    if (!frameWindow || typeof frameWindow.__updatePreview !== 'function') {
+      return;
+    }
+
+    const payload = buildPreviewData(manifestData);
+    frameWindow.__updatePreview(payload);
+  } catch (error) {
+    console.error('Erro ao atualizar preview:', error);
+  }
+}
+
+// Etapa 3: gera o PNG final reaproveitando o que foi visto no preview.
+async function generateArtWithPreviewFlow() {
+  const url = newsUrl.value.trim();
+  const imageOverride = customImageUrl.value.trim();
+
+  if (!currentTemplate) {
+    showToast('Escolha um template antes de gerar a arte', 'error');
+    return;
+  }
+
+  if (!url) {
+    showToast('Por favor, insira o link da notícia', 'error');
+    newsUrl.focus();
+    return;
+  }
+
+  if (!isValidUrl(url)) {
+    showToast('Por favor, insira um link válido', 'error');
+    newsUrl.focus();
+    return;
+  }
+
+  if (imageOverride && !isValidUrl(imageOverride)) {
+    showToast('Informe um link de imagem válido (http ou https).', 'error');
+    customImageUrl.focus();
+    return;
+  }
+
+  try {
+    showLoading();
+
+    const manifestData = await loadManifest(currentTemplate, 'index');
+    currentManifestData = manifestData;
+
+    const extractedData = await getOrExtractNewsData(url);
+    const extractedChapeu = extractedData.chapeu || null;
+
+    if (!customTag.value.trim() && extractedChapeu) {
+      customTag.value = extractedChapeu;
+    }
+
+    const manualTitle = customTitle.value.trim();
+    const manualSubtitle = customSubtitle.value.trim();
+    const manualTag = customTag.value.trim();
+    const manualBg = imageOverride;
+
+    const resolvedTitle = manualTitle || extractedData.h1 || null;
+    const resolvedSubtitle = manualSubtitle || extractedData.h2 || null;
+    const resolvedChapeu = manualTag || extractedChapeu || '';
+    const effectiveBg = manualBg || extractedData.bg || null;
+
+    if (!resolvedChapeu) {
+      showToast('Por favor, insira a categoria da notícia', 'error');
+      customTag.focus();
+      return;
+    }
+
+    if (!effectiveBg) {
+      showToast('Não encontramos uma imagem válida. Informe um link de imagem ou tente novamente.', 'error');
+      customImageUrl.focus();
+      return;
+    }
+
+    const logoField = manifestData.manifest?.logoField || 'logo';
+    const defaultLogo = manifestData.manifest?.defaultLogo || 'logo-a-gazeta';
+    const pageName = manifestData.page || 'index';
+
+    const artData = {
+      template: currentTemplate,
+      page: pageName,
+      h1: resolvedTitle,
+      h2: resolvedSubtitle,
+      tag: resolvedChapeu,
+      chapeu: extractedChapeu,
+      bg: effectiveBg,
+      sourceUrl: url
+    };
+
+    const parameters = {};
+    if (currentTheme) {
+      parameters.theme = currentTheme;
+    }
+    if (Object.keys(parameters).length) {
+      artData.parameters = parameters;
+    }
+
+    artData[logoField] = defaultLogo;
+
+    await downloadGeneratedArtwork(artData);
+
+    showToast('Arte gerada e download iniciado!', 'success');
+  } catch (error) {
+    console.error('Erro ao gerar arte:', error);
+    showToast('Erro ao gerar arte: ' + error.message, 'error');
+  } finally {
+    hideLoading();
+  }
 }
 
 async function generateArt() {
@@ -351,19 +884,19 @@ async function generateArt() {
   }
 
   if (!url) {
-    showToast('Por favor, insira o link da noticia', 'error');
+    showToast('Por favor, insira o link da notícia', 'error');
     newsUrl.focus();
     return;
   }
 
   if (!isValidUrl(url)) {
-    showToast('Por favor, insira um link valido', 'error');
+    showToast('Por favor, insira um link válido', 'error');
     newsUrl.focus();
     return;
   }
 
   if (imageOverride && !isValidUrl(imageOverride)) {
-    showToast('Informe um link de imagem valido (http ou https).', 'error');
+    showToast('Informe um link de imagem válido (http ou https).', 'error');
     customImageUrl.focus();
     return;
   }
@@ -395,7 +928,7 @@ async function generateArt() {
     }
 
     if (!effectiveBg) {
-      showToast('Nao encontramos uma imagem valida. Informe um link de imagem ou tente novamente.', 'error');
+      showToast('Não encontramos uma imagem válida. Informe um link de imagem ou tente novamente.', 'error');
       customImageUrl.focus();
       return;
     }
@@ -497,7 +1030,7 @@ async function extractNewsData(url) {
     });
 
     if (!response.ok) {
-      throw new Error('Erro ao extrair dados da noticia');
+      throw new Error('Erro ao extrair dados da notícia');
     }
 
     return await response.json();

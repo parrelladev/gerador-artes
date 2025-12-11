@@ -161,62 +161,73 @@ async function resolveLogoAsset(value, altText) {
     return result;
   }
 
-  throw new GeneratorError(`Logo não encontrado: ${value}`, 'ASSET');
+  throw new GeneratorError(`Logo não encontrada: ${value}`, 'ASSET');
 }
 
 function resolveBgAsset(value) {
+  if (!value) {
+    return null;
+  }
+
   if (isRemoteUrl(value)) {
-    return value;
+    return { kind: 'image', src: value, source: value, sourceType: 'remote' };
   }
 
   const extension = path.extname(value);
-  const candidates = extension ? [value] : BG_EXTENSIONS.map((ext) => `${value}${ext}`);
+  const candidateNames = extension ? [value] : BG_EXTENSIONS.map((ext) => `${value}${ext}`);
 
-  for (const candidate of candidates) {
+  for (const candidate of candidateNames) {
     const candidatePath = path.isAbsolute(candidate) ? candidate : path.join(INPUT_DIR, candidate);
-    if (fs.existsSync(candidatePath)) {
-      return pathToFileURL(candidatePath).href;
-    }
+    if (!fs.existsSync(candidatePath)) continue;
+
+    return {
+      kind: 'image',
+      src: pathToFileURL(candidatePath).href,
+      source: candidatePath,
+      sourceType: 'local',
+    };
   }
 
-  throw new GeneratorError(`Background não encontrado: ${value}`, 'ASSET');
+  throw new GeneratorError(`Imagem de fundo não encontrada: ${value}`, 'ASSET');
 }
 
-async function waitForImages(page) {
-  await page.evaluate(async () => {
-    const images = Array.from(document.images);
-    await Promise.all(
-      images.map((img) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve, reject) => {
-          const timer = setTimeout(() => reject(new Error(`Timeout ao carregar imagem: ${img.src}`)), 15000);
-          img.onload = () => {
-            clearTimeout(timer);
+async function waitForImages(pageInstance) {
+  await pageInstance.evaluate(
+    async () =>
+      new Promise((resolve) => {
+        const images = Array.from(document.images || []);
+
+        if (!images.length) {
+          resolve();
+          return;
+        }
+
+        let pending = images.length;
+
+        function done() {
+          pending -= 1;
+          if (pending <= 0) {
             resolve();
-          };
-          img.onerror = () => {
-            clearTimeout(timer);
-            reject(new Error(`Erro ao carregar imagem: ${img.src}`));
-          };
+          }
+        }
+
+        images.forEach((img) => {
+          if (img.complete && img.naturalWidth > 0) {
+            done();
+          } else {
+            img.addEventListener('load', done);
+            img.addEventListener('error', done);
+          }
         });
       }),
-    );
-  });
+  );
 }
 
 function buildFileName(arte, index) {
-  const slug = `${arte.template || 'arte'}-${arte.page || 'page'}`.replace(/[^\w-]/g, '-');
-  return `arte_${slug}_${index + 1}.png`;
-}
-
-function resolveTheme(manifestInfo, arte) {
-  const themeName = normalizeString(arte.parameters?.theme);
-  if (!themeName) {
-    return { themeName: null, themeStylesheet: null };
-  }
-
-  const stylesheet = `../css/theme-${themeName}.css`;
-  return { themeName, themeStylesheet: stylesheet };
+  const safeTemplate = String(arte.template || 'template').replace(/[^a-z0-9-_]+/gi, '-');
+  const safePage = String(arte.page || 'index').replace(/[^a-z0-9-_]+/gi, '-');
+  const suffix = String(index + 1).padStart(3, '0');
+  return `${safeTemplate}-${safePage}-${suffix}.png`;
 }
 
 async function renderArte(browser, arte, manifestInfo, index, outputDir) {
@@ -320,7 +331,7 @@ async function run(artes, options = {}) {
   try {
     browser = await puppeteer.launch();
 
-    for (let i = 0; i < artes.length; i++) {
+    for (let i = 0; i < artes.length; i += 1) {
       const arteInput = artes[i];
       const template = arteInput?.template;
       const page = arteInput?.page || 'index';
@@ -365,11 +376,11 @@ async function run(artes, options = {}) {
 
 async function runSingleToBuffer(arteInput, options = {}) {
   if (!arteInput || typeof arteInput !== 'object') {
-    throw new GeneratorError('Payload invÇ­lido: arte deve ser um objeto.', 'VALIDATION');
+    throw new GeneratorError('Payload inválido: arte deve ser um objeto.', 'VALIDATION');
   }
 
   if (isGenerating) {
-    throw new GeneratorError('JÇ­ existe uma geraÇõÇœo em andamento.', 'BUSY');
+    throw new GeneratorError('Já existe uma geração em andamento.', 'BUSY');
   }
 
   isGenerating = true;

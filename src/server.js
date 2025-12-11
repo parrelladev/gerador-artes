@@ -10,6 +10,8 @@ const app = express();
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static('public'));
+// expõe templates (HTML/CSS/fonts) para o preview no navegador
+app.use('/templates', express.static('templates'));
 app.use(config.publicOutputDir, express.static(config.outputDir));
 
 app.use('/api/generate', generateRouter);

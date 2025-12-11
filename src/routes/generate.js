@@ -44,8 +44,8 @@ router.post('/download', async (req, res) => {
 
   if (!arte || typeof arte !== 'object') {
     return res.status(400).json({
-      error: 'Payload invÇ­lido: informe um objeto "arte".',
-      detail: 'O corpo da requisiÇõÇœo deve conter uma arte vÇ­lida.',
+      error: 'Payload inválido: informe um objeto "arte".',
+      detail: 'O corpo da requisição deve conter uma arte válida.',
     });
   }
 

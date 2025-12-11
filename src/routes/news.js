@@ -15,7 +15,7 @@ router.post('/extract', async (req, res) => {
 
     if (chapeu) {
       // eslint-disable-next-line no-console
-      console.debug('[scraper] Chapeu extraido:', chapeu);
+      console.debug('[scraper] Chapéu extraído:', chapeu);
     }
 
     return res.json({ h1, h2, bg, chapeu });
