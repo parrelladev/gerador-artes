@@ -10,7 +10,8 @@ const app = express();
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static('public'));
-// expõe templates (HTML/CSS/fonts) para o preview no navegador
+app.use('/input', express.static('input'));
+// expリe templates (HTML/CSS/fonts) para o preview no navegador
 app.use('/templates', express.static('templates'));
 app.use(config.publicOutputDir, express.static(config.outputDir));
 
@@ -21,7 +22,7 @@ app.use('/api/news', newsRouter);
 app.get('/', (req, res) => {
   res.json({
     status: 'ok',
-    message: 'Gerador de artes disponível',
+    message: 'Gerador de artes disponヴvel',
     outputDir: path.resolve(config.outputDir),
   });
 });
