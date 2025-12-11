@@ -178,8 +178,12 @@ function setupEventListeners() {
     }
   });
 
-  closeModal.addEventListener('click', closeModalHandler);
-  cancelBtn.addEventListener('click', closeModalHandler);
+  if (closeModal) {
+    closeModal.addEventListener('click', closeModalHandler);
+  }
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closeModalHandler);
+  }
 
   modal.addEventListener('click', (event) => {
     if (event.target === modal) {
