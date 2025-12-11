@@ -18,10 +18,10 @@ html, body {
 }
 
 :root {
-  --bg: #002e77;
+  --bg: #1a007b;
   --ink: #ffffff;
   --muted: #ffffff;
-  --tag-bg: #3a9eed;
+  --tag-bg: #ff5656;
   --tag-ink: #ffffff;
   --photo-height: clamp(320px, 35vh, 675px);
   --pad-x: clamp(42px, 7vw, 120px);
