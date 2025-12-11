@@ -195,26 +195,50 @@ Erros de binding/validação aparecem nos logs da geração com o formato:
 
 ```text
 src/
-  server.js          # servidor Express e rotas
-  routes/            # /api/generate, /api/templates, /api/news
+  server.js              # servidor Express e rotas
+  routes/                # /api/generate, /api/templates, /api/news
   services/
-    generator.js     # orquestra geração, valida, resolve assets e chama Puppeteer
-    newsScraper.js   # extrai título/subtítulo/imagem/chapéu de notícias
+    generator.js         # orquestra geração e chama os módulos de geração
+    newsScraper.js       # extrai título/subtítulo/imagem/chapéu de notícias
   lib/
-    binding.js       # aplica bindings no DOM
-    manifestLoader.js# carrega manifests/templates
+    binding.js           # aplica bindings no DOM (backend)
+    manifestLoader.js    # carrega manifests/templates
+  modules/
+    generation/
+      errors.js          # erro de domínio da geração (GeneratorError)
+      arteValidator.js   # validação de payload (Zod + normalizações)
+      assetResolver.js   # resolução de assets (logos, backgrounds, remoto/local)
+      renderService.js   # renderizações com Puppeteer + binding
 
-templates/           # HTML/CSS/fonts + manifests por página
-input/               # assets locais (backgrounds/logos)
-output/              # PNGs gerados
-public/              # interface web, previews etc.
-config.example.js    # exemplo de configuração
-config.js            # configuração ativa (opcional)
+templates/               # HTML/CSS/fonts + manifests por página
+input/                   # assets locais (backgrounds/logos)
+output/                  # PNGs gerados
+public/                  # interface web, previews etc.
+  index.html             # UI principal (seleção de template, modal de geração)
+  script.js              # lógica da UI (preview, formulário, integrações)
+  js/
+    api.js               # chamadas HTTP a /api/* (manifests, geração, extração de notícia)
+  previews/              # imagens de preview dos templates
+config.example.js        # exemplo de configuração
+config.js                # configuração ativa (opcional)
 ```
 
 ---
 
-## 7. Operação e manutenção
+## 7. Preview e fluxo de geração
+
+Fluxo simplificado na interface web:
+- O usuário escolhe um template de story na lista da tela inicial.
+- Ao abrir o modal, a UI consulta `/api/templates/:template/:page` (via `Api.loadManifest`) para obter HTML, CSS e manifest daquela página.
+- Quando o usuário informa a URL de uma notícia, a UI chama `/api/news/extract` (via `Api.extractNewsData`) para sugerir título, subtítulo, imagem e chapéu.
+- O preview é montado em um `iframe` aplicando um pequeno runtime de binding baseado no manifest, de forma que o visual do preview reflita o que o Puppeteer irá renderizar.
+- Quando o usuário clica em **Criar**, a UI monta o payload de arte (template, página, campos de texto, background, tema e logo) e chama `/api/generate/download` (via `Api.downloadGeneratedArtwork`) para fazer o download imediato do PNG.
+
+O backend usa os módulos em `src/modules/generation` para validar o payload, resolver assets, aplicar bindings e gerar o screenshot em PNG com Puppeteer.
+
+---
+
+## 8. Operação e manutenção
 
 - Concorrência: `generator.run` evita execuções simultâneas; novas chamadas recebem 409 se houver job em andamento.
 - Limpeza: esvazie periodicamente a pasta `output/` conforme política interna.
@@ -226,7 +250,7 @@ config.js            # configuração ativa (opcional)
 
 ---
 
-## 8. Documentação complementar
+## 9. Documentação complementar
 
 Para detalhes específicos:
 - `DEPLOY.md` — passo a passo de deploy em Linux/Windows, exemplos de proxy (Nginx/Apache), variáveis de ambiente e troubleshooting em produção.

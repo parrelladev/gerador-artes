@@ -173,16 +173,34 @@ Exemplo em `/var/www/artes` (Linux) ou `C:\inetpub\wwwroot\artes` (Windows):
 ```text
 /var/www/artes/
   src/
-    server.js          # servidor Express
-  deploy.js            # assistente para gerar config.js
-  config.example.js    # exemplo de configuração
-  config.js            # configuração ativa (opcional)
+    server.js              # servidor Express
+    routes/                # /api/generate, /api/templates, /api/news
+    services/
+      generator.js         # orquestra geração e chama os módulos de geração
+      newsScraper.js       # extração de dados de notícias
+    lib/
+      binding.js           # runtime de binding no backend
+      manifestLoader.js    # carregamento de templates/manifests
+    modules/
+      generation/
+        errors.js          # erro de domínio da geração (GeneratorError)
+        arteValidator.js   # validação de payload (Zod + normalizações)
+        assetResolver.js   # resolução de assets (logos, backgrounds, remoto/local)
+        renderService.js   # renderizações com Puppeteer + binding
+  deploy.js                # assistente para gerar config.js
+  config.example.js        # exemplo de configuração
+  config.js                # configuração ativa (opcional)
   package.json
   package-lock.json
-  public/              # interface web, previews
-  templates/           # templates HTML/CSS/manifests
-  input/               # assets locais
-  output/              # artes geradas (PNG)
+  public/                  # interface web, previews
+    index.html             # UI principal
+    script.js              # lógica de UI (preview, formulário)
+    js/
+      api.js               # chamadas HTTP para /api/*
+    previews/              # imagens de preview dos templates
+  templates/               # templates HTML/CSS/manifests
+  input/                   # assets locais
+  output/                  # artes geradas (PNG)
   node_modules/
 ```
 
@@ -242,4 +260,3 @@ npm install
 - Downloads de artes: caminho configurado em `PUBLIC_OUTPUT_DIR` (ex.: `/artes/output/`).
 - Log de erros: console do Node no servidor.
 - Pastas importantes: `templates/`, `input/`, `output/`.
-

@@ -1,324 +1,22 @@
 const fs = require('fs');
-const path = require('path');
-const { pathToFileURL } = require('url');
 const puppeteer = require('puppeteer');
-const axios = require('axios');
-const { z } = require('zod');
 
 const config = require('../config');
 const { loadManifest } = require('../lib/manifestLoader');
-const { applyBindings, buildBindingPayload } = require('../lib/binding');
-
-const INPUT_DIR = path.resolve('input');
-const LOGO_EXTENSIONS = ['.svg', '.png', '.jpg', '.jpeg', '.webp'];
-const BG_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp'];
-const LOGO_CACHE = new Map();
+const { GeneratorError } = require('../modules/generation/errors');
+const arteValidator = require('../modules/generation/arteValidator');
+const assetResolver = require('../modules/generation/assetResolver');
+const renderService = require('../modules/generation/renderService');
 
 let isGenerating = false;
 
-class GeneratorError extends Error {
-  constructor(message, code, meta = {}) {
-    super(message);
-    this.name = 'GeneratorError';
-    this.code = code;
-    Object.assign(this, meta);
-  }
-}
-
-function normalizeString(value) {
-  if (typeof value !== 'string') return undefined;
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : undefined;
-}
-
-function sanitizePayload(obj) {
-  return Object.entries(obj).reduce((acc, [key, value]) => {
-    acc[key] = typeof value === 'string' ? value.trim() : value;
-    return acc;
-  }, {});
-}
-
-function buildArteSchema(manifest) {
-  const logoField = manifest.logoField || 'logo';
-  const logoSchema = manifest.defaultLogo
-    ? z.string().min(1, `${logoField} é obrigatório`).optional()
-    : z.string().min(1, `${logoField} é obrigatório`);
-
-  return z
-    .object({
-      template: z.string().min(1, 'template é obrigatório'),
-      page: z.string().min(1, 'page é obrigatório'),
-      h1: z.string().optional(),
-      h2: z.string().optional(),
-      tag: z.string().optional(),
-      chapeu: z.string().nullable().optional(),
-      text: z.string().optional(),
-      bg: z.string().min(1, 'bg é obrigatório'),
-      parameters: z.record(z.any()).optional(),
-      logoAlt: z.string().optional(),
-      [logoField]: logoSchema,
-    })
-    .passthrough();
-}
-
-function validateArte(arte, manifest) {
-  const schema = buildArteSchema(manifest);
-  const parsed = schema.parse(arte);
-  const sanitized = sanitizePayload(parsed);
-  const logoField = manifest.logoField || 'logo';
-  const bg = normalizeString(sanitized.bg);
-  const logoValue = normalizeString(sanitized[logoField]) || normalizeString(manifest.defaultLogo);
-
-  if (!bg) {
-    throw new GeneratorError('O campo "bg" é obrigatório e não pode estar vazio', 'VALIDATION');
-  }
-
-  if (!logoValue) {
-    throw new GeneratorError(`O campo "${logoField}" é obrigatório para este template`, 'VALIDATION');
-  }
-
-  return {
-    ...sanitized,
-    bg,
-    [logoField]: logoValue,
-  };
-}
-
-function ensureDimensions(manifest) {
-  const dims = manifest.dimensions || {};
-  const width = Number(dims.width);
-  const height = Number(dims.height);
-
-  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
-    throw new GeneratorError('Dimensões inválidas no manifest', 'VALIDATION');
-  }
-
-  return { width, height };
-}
-
-function isRemoteUrl(value) {
-  return typeof value === 'string' && /^https?:\/\//i.test(value);
-}
-
-async function resolveLogoAsset(value, altText) {
-  if (!value) {
-    return null;
-  }
-
-  const cached = LOGO_CACHE.get(value);
-  if (cached) {
-    return { ...cached, alt: altText || cached.alt };
-  }
-
-  if (isRemoteUrl(value)) {
-    if (/\.svg(\?|#|$)/i.test(value)) {
-      const response = await axios.get(value, { responseType: 'text' });
-      const markup = String(response.data || '').trim();
-      if (!markup.includes('<svg')) {
-        throw new GeneratorError(`Conteúdo SVG inválido em ${value}`, 'ASSET');
-      }
-      const result = { kind: 'inline-svg', markup, source: value, sourceType: 'remote', alt: altText };
-      LOGO_CACHE.set(value, result);
-      return result;
-    }
-
-    const result = { kind: 'image', src: value, source: value, sourceType: 'remote', alt: altText };
-    LOGO_CACHE.set(value, result);
-    return result;
-  }
-
-  const extension = path.extname(value);
-  const candidateNames = extension ? [value] : LOGO_EXTENSIONS.map((ext) => `${value}${ext}`);
-
-  for (const candidate of candidateNames) {
-    const candidatePath = path.isAbsolute(candidate) ? candidate : path.join(INPUT_DIR, candidate);
-    if (!fs.existsSync(candidatePath)) continue;
-
-    if (candidate.toLowerCase().endsWith('.svg')) {
-      const markup = fs.readFileSync(candidatePath, 'utf-8');
-      if (!markup.includes('<svg')) {
-        throw new GeneratorError(`Conteúdo SVG inválido em ${candidatePath}`, 'ASSET');
-      }
-      const result = {
-        kind: 'inline-svg',
-        markup: markup.trim(),
-        source: candidatePath,
-        sourceType: 'local',
-        alt: altText,
-      };
-      LOGO_CACHE.set(value, result);
-      return result;
-    }
-
-    const result = {
-      kind: 'image',
-      src: pathToFileURL(candidatePath).href,
-      source: candidatePath,
-      sourceType: 'local',
-      alt: altText,
-    };
-    LOGO_CACHE.set(value, result);
-    return result;
-  }
-
-  throw new GeneratorError(`Logo não encontrada: ${value}`, 'ASSET');
-}
-
-function resolveBgAsset(value) {
-  if (!value) {
-    return null;
-  }
-
-  if (isRemoteUrl(value)) {
-    return { kind: 'image', src: value, source: value, sourceType: 'remote' };
-  }
-
-  const extension = path.extname(value);
-  const candidateNames = extension ? [value] : BG_EXTENSIONS.map((ext) => `${value}${ext}`);
-
-  for (const candidate of candidateNames) {
-    const candidatePath = path.isAbsolute(candidate) ? candidate : path.join(INPUT_DIR, candidate);
-    if (!fs.existsSync(candidatePath)) continue;
-
-    return {
-      kind: 'image',
-      src: pathToFileURL(candidatePath).href,
-      source: candidatePath,
-      sourceType: 'local',
-    };
-  }
-
-  throw new GeneratorError(`Imagem de fundo não encontrada: ${value}`, 'ASSET');
-}
-
-async function waitForImages(pageInstance) {
-  await pageInstance.evaluate(
-    async () =>
-      new Promise((resolve) => {
-        const images = Array.from(document.images || []);
-
-        if (!images.length) {
-          resolve();
-          return;
-        }
-
-        let pending = images.length;
-
-        function done() {
-          pending -= 1;
-          if (pending <= 0) {
-            resolve();
-          }
-        }
-
-        images.forEach((img) => {
-          if (img.complete && img.naturalWidth > 0) {
-            done();
-          } else {
-            img.addEventListener('load', done);
-            img.addEventListener('error', done);
-          }
-        });
-      }),
-  );
-}
-
-function buildFileName(arte, index) {
-  const safeTemplate = String(arte.template || 'template').replace(/[^a-z0-9-_]+/gi, '-');
-  const safePage = String(arte.page || 'index').replace(/[^a-z0-9-_]+/gi, '-');
-  const suffix = String(index + 1).padStart(3, '0');
-  return `${safeTemplate}-${safePage}-${suffix}.png`;
-}
-
-async function renderArte(browser, arte, manifestInfo, index, outputDir) {
-  const { manifest, htmlPath, template, page } = manifestInfo;
-  const logoField = manifest.logoField || 'logo';
-  const dimensions = ensureDimensions(manifest);
-
-  const pageInstance = await browser.newPage();
-  pageInstance.setDefaultNavigationTimeout(50000);
-  pageInstance.setDefaultTimeout(50000);
-  await pageInstance.setViewport(dimensions);
-  await pageInstance.goto(pathToFileURL(htmlPath).href, { waitUntil: 'networkidle0' });
-
-  const resolvedBg = resolveBgAsset(arte.bg);
-  const logoAsset = await resolveLogoAsset(arte[logoField], arte.logoAlt || arte.parameters?.logoAlt);
-  if (!logoAsset) {
-    throw new GeneratorError('Falha ao resolver logo', 'ASSET');
-  }
-
-  const { themeName, themeStylesheet } = resolveTheme(manifestInfo, arte);
-
-  const bindingData = {
-    ...arte,
-    resolvedBg,
-    resolvedLogo: logoAsset,
-    themeName,
-    themeStylesheet,
-  };
-
-  const bindingPayload = buildBindingPayload(manifest, bindingData);
-  await applyBindings(pageInstance, bindingPayload);
-  await waitForImages(pageInstance);
-
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
-  const filename = buildFileName({ template, page }, index);
-  const outputPath = path.join(outputDir, filename);
-
-  await pageInstance.screenshot({ path: outputPath });
-  await pageInstance.close();
-
-  return { filename, outputPath };
-}
-
-async function renderArteToBuffer(browser, arte, manifestInfo) {
-  const { manifest, htmlPath, template, page } = manifestInfo;
-  const logoField = manifest.logoField || 'logo';
-  const dimensions = ensureDimensions(manifest);
-
-  const pageInstance = await browser.newPage();
-  pageInstance.setDefaultNavigationTimeout(50000);
-  pageInstance.setDefaultTimeout(50000);
-  await pageInstance.setViewport(dimensions);
-  await pageInstance.goto(pathToFileURL(htmlPath).href, { waitUntil: 'networkidle0' });
-
-  const resolvedBg = resolveBgAsset(arte.bg);
-  const logoAsset = await resolveLogoAsset(arte[logoField], arte.logoAlt || arte.parameters?.logoAlt);
-  if (!logoAsset) {
-    throw new GeneratorError('Falha ao resolver logo', 'ASSET');
-  }
-
-  const { themeName, themeStylesheet } = resolveTheme(manifestInfo, arte);
-
-  const bindingData = {
-    ...arte,
-    resolvedBg,
-    resolvedLogo: logoAsset,
-    themeName,
-    themeStylesheet,
-  };
-
-  const bindingPayload = buildBindingPayload(manifest, bindingData);
-  await applyBindings(pageInstance, bindingPayload);
-  await waitForImages(pageInstance);
-
-  const filename = buildFileName({ template, page }, 0);
-  const buffer = await pageInstance.screenshot({ type: 'png' });
-  await pageInstance.close();
-
-  return { filename, buffer };
-}
-
 async function run(artes, options = {}) {
   if (!Array.isArray(artes) || artes.length === 0) {
-    throw new GeneratorError('Payload inválido: "artes" deve ser um array com ao menos um item.', 'VALIDATION');
+    throw new GeneratorError('Payload invÇ­lido: "artes" deve ser um array com ao menos um item.', 'VALIDATION');
   }
 
   if (isGenerating) {
-    throw new GeneratorError('Já existe uma geração em andamento.', 'BUSY');
+    throw new GeneratorError('JÇ­ existe uma geraÇõÇœo em andamento.', 'BUSY');
   }
 
   isGenerating = true;
@@ -338,8 +36,8 @@ async function run(artes, options = {}) {
 
       try {
         const manifestInfo = loadManifest(template, page);
-        const arte = validateArte(arteInput, manifestInfo.manifest);
-        const { filename, outputPath } = await renderArte(browser, arte, manifestInfo, i, outputDir);
+        const arte = arteValidator.validateArte(arteInput, manifestInfo.manifest);
+        const { filename, outputPath } = await renderService.renderArte(browser, arte, manifestInfo, i, outputDir);
 
         files.push(filename);
         logs.push({
@@ -368,7 +66,7 @@ async function run(artes, options = {}) {
 
   const hasErrors = logs.some((log) => log.status === 'erro');
   if (hasErrors && !files.length) {
-    throw new GeneratorError('Nenhuma arte pôde ser gerada.', 'GENERATION_ERROR', { logs });
+    throw new GeneratorError('Nenhuma arte pÇïde ser gerada.', 'GENERATION_ERROR', { logs });
   }
 
   return { files, logs };
@@ -376,11 +74,11 @@ async function run(artes, options = {}) {
 
 async function runSingleToBuffer(arteInput, options = {}) {
   if (!arteInput || typeof arteInput !== 'object') {
-    throw new GeneratorError('Payload inválido: arte deve ser um objeto.', 'VALIDATION');
+    throw new GeneratorError('Payload invÇ­lido: arte deve ser um objeto.', 'VALIDATION');
   }
 
   if (isGenerating) {
-    throw new GeneratorError('Já existe uma geração em andamento.', 'BUSY');
+    throw new GeneratorError('JÇ­ existe uma geraÇõÇœo em andamento.', 'BUSY');
   }
 
   isGenerating = true;
@@ -391,7 +89,7 @@ async function runSingleToBuffer(arteInput, options = {}) {
     const page = arteInput.page || 'index';
 
     const manifestInfo = loadManifest(template, page);
-    const arte = validateArte(arteInput, manifestInfo.manifest);
+    const arte = arteValidator.validateArte(arteInput, manifestInfo.manifest);
 
     const outputDir = options.outputDir || config.outputDir;
     if (!fs.existsSync(outputDir)) {
@@ -399,7 +97,7 @@ async function runSingleToBuffer(arteInput, options = {}) {
     }
 
     browser = await puppeteer.launch();
-    const { filename, buffer } = await renderArteToBuffer(browser, arte, manifestInfo);
+    const { filename, buffer } = await renderService.renderArteToBuffer(browser, arte, manifestInfo);
 
     const logs = [
       {
@@ -424,8 +122,9 @@ module.exports = {
   run,
   runSingleToBuffer,
   isGenerating: () => isGenerating,
-  buildArteSchema,
-  validateArte,
-  resolveLogoAsset,
-  resolveBgAsset,
+  buildArteSchema: arteValidator.buildArteSchema,
+  validateArte: arteValidator.validateArte,
+  resolveLogoAsset: assetResolver.resolveLogoAsset,
+  resolveBgAsset: assetResolver.resolveBgAsset,
 };
+

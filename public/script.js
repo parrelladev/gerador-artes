@@ -87,7 +87,6 @@ const storyTemplates = [
 
 const templateLookup = Object.fromEntries(storyTemplates.map(template => [template.id, template]));
 const storyGroups = Array.from(new Set(storyTemplates.map(template => template.group)));
-const manifestCache = {};
 
 let currentTemplate = null;
 let currentTemplateMeta = null;
@@ -398,27 +397,15 @@ function closeModalHandler() {
 }
 
 async function loadManifest(template, page = 'index') {
-  const cacheKey = `${template}/${page}`;
-  if (manifestCache[cacheKey]) {
-    return manifestCache[cacheKey];
+    return window.Api.loadManifest(template, page);
   }
-
-  const response = await fetch(`/api/templates/${template}/${page}`);
-  if (!response.ok) {
-    throw new Error('Template não encontrado');
-  }
-
-  const data = await response.json();
-  manifestCache[cacheKey] = data;
-  return data;
-}
-
-async function getOrExtractNewsData(url) {
+  
+  async function getOrExtractNewsData(url) {
   if (lastNewsUrl === url && lastNewsData) {
     return lastNewsData;
   }
 
-  const data = (await extractNewsData(url)) || {};
+  const data = (await window.Api.extractNewsData(url)) || {};
   lastNewsUrl = url;
   lastNewsData = data;
   return data;
@@ -862,7 +849,7 @@ async function generateArtWithPreviewFlow() {
 
     artData[logoField] = defaultLogo;
 
-    await downloadGeneratedArtwork(artData);
+      await window.Api.downloadGeneratedArtwork(artData);
 
     showToast('Arte gerada e download iniciado!', 'success');
   } catch (error) {
@@ -909,7 +896,7 @@ async function generateArt() {
     const defaultLogo = manifestData.manifest?.defaultLogo || 'logo-a-gazeta';
     const pageName = manifestData.page || 'index';
 
-    const extractedData = (await extractNewsData(url)) || {};
+    const extractedData = (await window.Api.extractNewsData(url)) || {};
     const extractedChapeu = extractedData.chapeu || null;
 
     if (!manualTag && extractedChapeu) {
@@ -954,7 +941,7 @@ async function generateArt() {
 
     artData[logoField] = defaultLogo;
 
-    await downloadGeneratedArtwork(artData);
+      await window.Api.downloadGeneratedArtwork(artData);
 
     showToast('Arte gerada e download iniciado!', 'success');
     closeModalHandler();
@@ -963,80 +950,6 @@ async function generateArt() {
     showToast('Erro ao gerar arte: ' + error.message, 'error');
   } finally {
     hideLoading();
-  }
-}
-
-async function downloadGeneratedArtwork(arte) {
-  let attempt = 0;
-  const maxRetries = 5;
-
-  // Tenta serializar a geração quando o servidor estiver ocupado (BUSY/409)
-  // com um backoff simples entre as tentativas.
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const response = await fetch('/api/generate/download', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ arte })
-    });
-
-    if (response.status === 409 && attempt < maxRetries) {
-      attempt += 1;
-      const delay = 1500 * attempt;
-      // eslint-disable-next-line no-await-in-loop
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      // eslint-disable-next-line no-continue
-      continue;
-    }
-
-    if (!response.ok) {
-      let message = 'Erro ao gerar arte';
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        const errorBody = await response.json();
-        if (errorBody && errorBody.detail) {
-          message = errorBody.detail;
-        }
-      } catch (e) {
-        // Ignora falha ao ler corpo de erro
-      }
-      throw new Error(message);
-    }
-
-    // eslint-disable-next-line no-await-in-loop
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'arte.png';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-    return;
-  }
-}
-
-async function extractNewsData(url) {
-  try {
-    const response = await fetch('/api/news/extract', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ url })
-    });
-
-    if (!response.ok) {
-      throw new Error('Erro ao extrair dados da notícia');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Erro ao extrair dados:', error);
-    return {};
   }
 }
 
@@ -1077,9 +990,4 @@ function showToast(message, type = 'info') {
   setTimeout(() => {
     toast.remove();
   }, 5000);
-}
-
-function createPreviewsFolder() {
-  console.log('Para adicionar previews dos templates, coloque as imagens na pasta: public/previews/');
-  console.log('Nomes sugeridos: template1.jpg, template2.jpg, template3.jpg, template4.jpg');
 }
