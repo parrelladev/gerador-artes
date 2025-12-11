@@ -1,7 +1,7 @@
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 
-const config = require('../config');
+const config = require('../appConfig');
 const { loadManifest } = require('../lib/manifestLoader');
 const { GeneratorError } = require('../modules/generation/errors');
 const arteValidator = require('../modules/generation/arteValidator');
@@ -127,4 +127,3 @@ module.exports = {
   resolveLogoAsset: assetResolver.resolveLogoAsset,
   resolveBgAsset: assetResolver.resolveBgAsset,
 };
-

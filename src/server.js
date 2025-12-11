@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const config = require('./config');
+const config = require('./appConfig');
 
 const generateRouter = require('./routes/generate');
 const templatesRouter = require('./routes/templates');
